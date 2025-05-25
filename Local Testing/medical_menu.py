@@ -368,7 +368,7 @@ class MedicalMenu:
         """Handle invalid menu selections"""
         menu_text = "Invalid selection.\n\n"
         menu_text += "Please choose a valid option\n"
-        menu_text += "or dial *714# to restart."
+        menu_text += "or dial *384*15879# to restart."
         return self.session.ussd_end(menu_text)
 
     def error_menu(self, error_message, session_id):

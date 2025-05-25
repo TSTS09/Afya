@@ -6,7 +6,7 @@ Updated with proper environment variable handling
 import os
 import hashlib
 from datetime import datetime
-from dotenv import load_dotenv  # Add this import
+from dotenv import load_dotenv  
 from session_manager import SessionManager
 from medical_menu import MedicalMenu
 from flask import Flask, make_response, request, flash, url_for, redirect, render_template, jsonify
@@ -582,7 +582,7 @@ def test_ussd():
                             </div>
                             <div class="mb-3">
                                 <label class="form-label"><strong>Service Code:</strong></label>
-                                <input name="serviceCode" value="*714#" class="form-control">
+                                <input name="serviceCode" value="*384*15879#" class="form-control">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label"><strong>Phone Number:</strong></label>
@@ -650,7 +650,7 @@ if __name__ == '__main__':
     print(f"🌐 Web Interface: http://localhost:{port}")
     print(f"🧪 USSD Test: http://localhost:{port}/test-ussd")
     print(f"❤️ Health Check: http://localhost:{port}/health")
-    print(f"📱 USSD Code: *714#")
+    print(f"📱 USSD Code: *384*15879#")
     print("=" * 60)
 
     # Run the application
