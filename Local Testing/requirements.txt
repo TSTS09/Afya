@@ -1,0 +1,41 @@
+# Afya Medical EHR - Latest Requirements (2025)
+# All packages updated to their latest stable versions
+
+# Core Framework 
+Flask==3.1.1
+Flask-SQLAlchemy==3.1.1
+
+# Database Support - Latest versions
+SQLAlchemy==2.0.36
+# Use latest psycopg for PostgreSQL support
+psycopg[binary]==3.2.9
+
+# Session Management - Latest Redis
+redis==5.2.1
+
+# Communication Services - Latest Twilio
+twilio==9.4.0
+
+# Environment & Configuration - Latest
+python-dotenv==1.0.1
+
+# Production Server - Latest Gunicorn
+gunicorn==23.0.0
+
+# HTTP Requests - Latest
+requests==2.32.3
+
+# Security - Latest
+cryptography==44.0.0
+
+# Date/Time - Latest
+python-dateutil==2.9.0
+
+# Africa's Talking SDK - Latest
+africastalking==1.2.5
+
+# Phone Number Utilities - Latest
+phonenumbers==8.13.49
+
+# Development Dependencies - Latest
+flask-cors==6.0.0
