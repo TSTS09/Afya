@@ -1,63 +1,67 @@
 """
-Afya Medical EHR System - Deployment Ready Version
-Works with Render, Railway, Fly.io, and other free platforms
+Afya Medical EHR System - Local Deployment Version
+Updated with proper environment variable handling
 """
 
 import os
 import hashlib
 from datetime import datetime
+from dotenv import load_dotenv  # Add this import
 from session_manager import SessionManager
 from medical_menu import MedicalMenu
 from flask import Flask, make_response, request, flash, url_for, redirect, render_template, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
+# Load environment variables from .env file
+load_dotenv()
+
 app = Flask(__name__)
 
-# Configuration for different deployment platforms
+# Configuration for local deployment
 
 
 def configure_app():
-    """Configure app based on environment"""
+    """Configure app for local deployment with environment variables"""
 
-    # Default configuration
+    # Load configuration from environment variables
     app.config['SECRET_KEY'] = os.environ.get(
         'SECRET_KEY', 'dev-secret-key-change-in-production')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['DEBUG'] = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-    # Database configuration - works with multiple platforms
+    # Database configuration
     database_url = os.environ.get('DATABASE_URL')
 
     if database_url:
-        # Fix for newer PostgreSQL URLs (Render, Railway use postgresql://)
+        # Handle PostgreSQL URL formats
         if database_url.startswith('postgres://'):
             database_url = database_url.replace(
                 'postgres://', 'postgresql://', 1)
         app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+        print(f"🐘 Using PostgreSQL database")
     else:
-        # Fallback to SQLite for local development
+        # Fallback to SQLite for development
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///afya_medical.sqlite3'
+        print("🗃️ Using SQLite database (fallback)")
 
-    # Environment-specific settings
-    if os.environ.get('RENDER'):
-        # Render-specific configuration
-        app.config['DEBUG'] = False
-        print("🚀 Running on Render")
-    elif os.environ.get('RAILWAY_ENVIRONMENT'):
-        # Railway-specific configuration
-        app.config['DEBUG'] = False
-        print("🚀 Running on Railway")
-    elif os.environ.get('FLY_APP_NAME'):
-        # Fly.io-specific configuration
-        app.config['DEBUG'] = False
-        print("🚀 Running on Fly.io")
-    elif os.environ.get('PYTHONANYWHERE_DOMAIN'):
-        # PythonAnywhere-specific configuration
-        app.config['DEBUG'] = False
-        print("🚀 Running on PythonAnywhere")
-    else:
-        # Local development
-        app.config['DEBUG'] = True
-        print("🔧 Running in development mode")
+    # Environment detection
+    env = os.environ.get('FLASK_ENV', 'development')
+    port = int(os.environ.get('PORT', 5000))
+
+    print(f"🚀 Running in {env} mode on port {port}")
+
+    # Print loaded environment variables (safely)
+    print("📋 Environment variables loaded:")
+    print(
+        f"   - SECRET_KEY: {'✓ Set' if app.config['SECRET_KEY'] != 'dev-secret-key-change-in-production' else '⚠️ Using default'}")
+    print(
+        f"   - DATABASE_URL: {'✓ Set' if database_url else '⚠️ Using SQLite'}")
+    print(
+        f"   - REDIS_URL: {'✓ Set' if os.environ.get('REDIS_URL') else '⚠️ Not set'}")
+    print(
+        f"   - AFRICASTALKING_API_KEY: {'✓ Set' if os.environ.get('AFRICASTALKING_API_KEY') else '⚠️ Not set'}")
+    print(
+        f"   - TWILIO_ACCOUNT_SID: {'✓ Set' if os.environ.get('TWILIO_ACCOUNT_SID') else '⚠️ Not set'}")
 
 
 # Configure the app
@@ -67,7 +71,7 @@ db = SQLAlchemy(app)
 session = SessionManager()
 medical_menu = MedicalMenu(session)
 
-# Database Models (Same as before but with better error handling)
+# Database Models (Same as before)
 
 
 class HealthcareFacility(db.Model):
@@ -179,55 +183,186 @@ def log_activity(user_phone, action, details=None):
 
 
 def init_db():
-    """Initialize database with error handling"""
+    """Initialize database with comprehensive sample data"""
     try:
         db.create_all()
+        print("✅ Database tables created successfully!")
 
         # Create sample data if none exists
         if HealthcareFacility.query.count() == 0:
-            # Sample facility
-            facility = HealthcareFacility(
-                name="Afya Demo Clinic",
-                facility_type="Health Center",
-                location="Accra Central",
-                phone="0501234567",
-                registration_date=datetime.now().strftime('%d/%m/%y %H:%M:%S')
-            )
-            db.session.add(facility)
+            print("📝 Creating sample data...")
 
-            # Sample provider (PIN: 1234)
-            provider = HealthcareProvider(
-                name="Dr. Kwame Asante",
-                phone="0501234568",
-                specialization="General Medicine",
-                facility_id=1,
-                pin=hash_pin("1234"),
-                registration_date=datetime.now().strftime('%d/%m/%y %H:%M:%S')
-            )
-            db.session.add(provider)
+            # Sample facilities
+            facilities = [
+                HealthcareFacility(
+                    name="Afya Demo Clinic",
+                    facility_type="Health Center",
+                    location="Accra Central",
+                    phone="0501234567",
+                    registration_date=datetime.now().strftime('%d/%m/%y %H:%M:%S')
+                ),
+                HealthcareFacility(
+                    name="Ridge Hospital",
+                    facility_type="Hospital",
+                    location="Ridge, Accra",
+                    phone="0302776481",
+                    registration_date=datetime.now().strftime('%d/%m/%y %H:%M:%S')
+                ),
+                HealthcareFacility(
+                    name="Kumasi Health Center",
+                    facility_type="Health Center",
+                    location="Kumasi Central",
+                    phone="0322022308",
+                    registration_date=datetime.now().strftime('%d/%m/%y %H:%M:%S')
+                )
+            ]
 
-            # Sample patient
-            patient = Patient(
-                phone="0200123456",
-                name="John Doe",
-                date_of_birth="01/01/1990",
-                gender="Male",
-                blood_type="O+",
-                registration_date=datetime.now().strftime('%d/%m/%y %H:%M:%S')
-            )
-            db.session.add(patient)
+            for facility in facilities:
+                db.session.add(facility)
 
             db.session.commit()
+
+            # Sample providers
+            providers = [
+                HealthcareProvider(
+                    name="Dr. Kwame Asante",
+                    phone="0501234568",
+                    specialization="General Medicine",
+                    facility_id=1,
+                    pin=hash_pin("1234"),
+                    registration_date=datetime.now().strftime('%d/%m/%y %H:%M:%S')
+                ),
+                HealthcareProvider(
+                    name="Dr. Ama Mensah",
+                    phone="0201234569",
+                    specialization="Pediatrics",
+                    facility_id=2,
+                    pin=hash_pin("5678"),
+                    registration_date=datetime.now().strftime('%d/%m/%y %H:%M:%S')
+                ),
+                HealthcareProvider(
+                    name="Dr. Kofi Boateng",
+                    phone="0241234570",
+                    specialization="Internal Medicine",
+                    facility_id=3,
+                    pin=hash_pin("9012"),
+                    registration_date=datetime.now().strftime('%d/%m/%y %H:%M:%S')
+                )
+            ]
+
+            for provider in providers:
+                db.session.add(provider)
+
+            db.session.commit()
+
+            # Sample patients
+            patients = [
+                Patient(
+                    phone="0200123456",
+                    name="John Doe",
+                    date_of_birth="01/01/1990",
+                    gender="Male",
+                    blood_type="O+",
+                    allergies="None known",
+                    emergency_contact="0200987654",
+                    registration_date=datetime.now().strftime('%d/%m/%y %H:%M:%S')
+                ),
+                Patient(
+                    phone="0240234567",
+                    name="Jane Smith",
+                    date_of_birth="15/05/1985",
+                    gender="Female",
+                    blood_type="A+",
+                    allergies="Penicillin",
+                    emergency_contact="0240876543",
+                    registration_date=datetime.now().strftime('%d/%m/%y %H:%M:%S')
+                ),
+                Patient(
+                    phone="0260345678",
+                    name="Kwame Osei",
+                    date_of_birth="20/12/1992",
+                    gender="Male",
+                    blood_type="B+",
+                    allergies="None known",
+                    emergency_contact="0260765432",
+                    registration_date=datetime.now().strftime('%d/%m/%y %H:%M:%S')
+                ),
+                Patient(
+                    phone="0270456789",
+                    name="Akosua Addo",
+                    date_of_birth="10/03/1988",
+                    gender="Female",
+                    blood_type="AB+",
+                    allergies="Shellfish",
+                    emergency_contact="0270654321",
+                    registration_date=datetime.now().strftime('%d/%m/%y %H:%M:%S')
+                )
+            ]
+
+            for patient in patients:
+                db.session.add(patient)
+
+            db.session.commit()
+
+            # Sample medical records
+            medical_records = [
+                MedicalRecord(
+                    patient_id=1,
+                    provider_id=1,
+                    facility_id=1,
+                    visit_date=datetime.now().strftime('%d/%m/%y'),
+                    chief_complaint="General checkup",
+                    diagnosis="Healthy - routine examination",
+                    treatment_plan="Continue healthy lifestyle",
+                    notes="Patient appears in good health"
+                ),
+                MedicalRecord(
+                    patient_id=2,
+                    provider_id=2,
+                    facility_id=2,
+                    visit_date=datetime.now().strftime('%d/%m/%y'),
+                    chief_complaint="Headache and fever",
+                    diagnosis="Viral infection",
+                    treatment_plan="Rest, fluids, paracetamol",
+                    notes="Symptoms should resolve in 3-5 days"
+                ),
+                MedicalRecord(
+                    patient_id=3,
+                    provider_id=3,
+                    facility_id=3,
+                    visit_date=datetime.now().strftime('%d/%m/%y'),
+                    chief_complaint="Follow-up for hypertension",
+                    diagnosis="Hypertension - controlled",
+                    treatment_plan="Continue current medication",
+                    notes="Blood pressure well controlled"
+                )
+            ]
+
+            for record in medical_records:
+                db.session.add(record)
+
+            db.session.commit()
+
             print("✅ Sample data created successfully!")
+            print("📋 Created:")
+            print(f"   - {len(facilities)} healthcare facilities")
+            print(f"   - {len(providers)} healthcare providers")
+            print(f"   - {len(patients)} patients")
+            print(f"   - {len(medical_records)} medical records")
+            print("🔑 Demo provider PINs: 1234, 5678, 9012")
+
     except Exception as e:
-        print(f"Database initialization error: {e}")
+        print(f"❌ Database initialization error: {e}")
+        return False
+
+    return True
 
 # Routes
 
 
 @app.route('/', methods=['GET'])
 def index():
-    """Main landing page with error handling"""
+    """Main dashboard with error handling"""
     try:
         return render_template('dashboard.html',
                                total_patients=Patient.query.count(),
@@ -236,15 +371,28 @@ def index():
                                recent_records=MedicalRecord.query.order_by(MedicalRecord.id.desc()).limit(5).all())
     except Exception as e:
         print(f"Dashboard error: {e}")
-        return f"Dashboard loading... Database might be initializing. Refresh in a moment.<br>Error: {e}"
+        return f"""
+        <div style="font-family: Arial; padding: 20px; background: #f8f9fa; min-height: 100vh;">
+            <h2>🏥 Afya Medical EHR</h2>
+            <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #28a745;">
+                <h3>System Initializing...</h3>
+                <p>The database is being set up. Please refresh the page in a moment.</p>
+                <p><strong>Error details:</strong> {str(e)}</p>
+                <hr>
+                <p><strong>Quick Actions:</strong></p>
+                <ul>
+                    <li><a href="/test-ussd">Test USSD Interface</a></li>
+                    <li><a href="/health">Check System Health</a></li>
+                    <li><a href="/register-facility">Register Facility</a></li>
+                </ul>
+            </div>
+        </div>
+        """
 
 
 @app.route('/ussd/callback', methods=['POST', 'GET'])
 def ussd_callback():
-    """
-    Main USSD callback function for Africa's Talking
-    Works with any USSD provider
-    """
+    """Main USSD callback function for Africa's Talking"""
     try:
         # Get parameters from USSD provider
         session_id = request.values.get("sessionId", None)
@@ -278,11 +426,14 @@ def ussd_callback():
             return medical_menu.invalid_selection(session_id)
 
     except Exception as e:
-        print(f"USSD callback error: {e}")
-        # Return error message in USSD format
-        return make_response(f"END System temporarily unavailable.\nPlease try again later.\nError: {str(e)[:50]}", 200, {'Content-Type': 'text/plain'})
+        print(f"❌ USSD callback error: {e}")
+        return make_response(
+            f"END System temporarily unavailable.\nPlease try again later.\nError: {str(e)[:50]}",
+            200,
+            {'Content-Type': 'text/plain'}
+        )
 
-# Web Dashboard Routes with better error handling
+# Web Dashboard Routes
 
 
 @app.route('/register-facility', methods=['GET', 'POST'])
@@ -300,6 +451,8 @@ def register_facility():
             db.session.add(facility)
             db.session.commit()
             flash('Healthcare facility registered successfully!')
+            log_activity(
+                request.form['phone'], 'Facility_Registration', f"Facility: {request.form['name']}")
             return redirect(url_for('index'))
         except Exception as e:
             flash(f'Error registering facility: {str(e)}')
@@ -327,6 +480,8 @@ def register_provider():
             db.session.add(provider)
             db.session.commit()
             flash('Healthcare provider registered successfully!')
+            log_activity(
+                request.form['phone'], 'Provider_Registration', f"Provider: {request.form['name']}")
             return redirect(url_for('index'))
         except Exception as e:
             flash(f'Error registering provider: {str(e)}')
@@ -353,7 +508,7 @@ def list_patients():
 def system_logs():
     """View system activity logs"""
     try:
-        logs = SystemLog.query.order_by(SystemLog.id.desc()).limit(50).all()
+        logs = SystemLog.query.order_by(SystemLog.id.desc()).limit(100).all()
     except:
         logs = []
     return render_template('system_logs.html', logs=logs)
@@ -366,12 +521,27 @@ def health_check():
         # Test database connection
         db.session.execute('SELECT 1')
 
+        # Test Redis connection if configured
+        redis_status = "not_configured"
+        if os.environ.get('REDIS_URL'):
+            try:
+                from redis import Redis
+                r = Redis.from_url(os.environ.get('REDIS_URL'))
+                r.ping()
+                redis_status = "connected"
+            except:
+                redis_status = "error"
+
         return jsonify({
             'status': 'healthy',
             'timestamp': datetime.now().isoformat(),
             'version': '1.0.0',
             'database': 'connected',
-            'environment': os.environ.get('RENDER', os.environ.get('RAILWAY_ENVIRONMENT', 'development'))
+            'redis': redis_status,
+            'environment': os.environ.get('FLASK_ENV', 'development'),
+            'total_patients': Patient.query.count(),
+            'total_providers': HealthcareProvider.query.count(),
+            'total_facilities': HealthcareFacility.query.count()
         }), 200
     except Exception as e:
         return jsonify({
@@ -380,32 +550,85 @@ def health_check():
             'timestamp': datetime.now().isoformat()
         }), 500
 
-# Test endpoint for development
-
 
 @app.route('/test-ussd', methods=['GET', 'POST'])
 def test_ussd():
     """Test USSD functionality locally"""
     if request.method == 'GET':
         return '''
-        <h2>🧪 USSD Test Interface</h2>
-        <form method="post" style="font-family: Arial; padding: 20px; background: #f5f5f5; border-radius: 10px; max-width: 400px;">
-            <p><strong>Session ID:</strong><br><input name="sessionId" value="test_session_123" style="width: 100%; padding: 5px;"></p>
-            <p><strong>Service Code:</strong><br><input name="serviceCode" value="*714#" style="width: 100%; padding: 5px;"></p>
-            <p><strong>Phone Number:</strong><br><input name="phoneNumber" value="+233200000000" style="width: 100%; padding: 5px;"></p>
-            <p><strong>Text (Menu Input):</strong><br><input name="text" value="" placeholder="e.g., 1*1234" style="width: 100%; padding: 5px;"></p>
-            <button type="submit" style="background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">📱 Send USSD Request</button>
-        </form>
-        <div style="margin-top: 20px; font-size: 14px; color: #666;">
-            <h3>Test Sequences:</h3>
-            <ul>
-                <li><strong>Main Menu:</strong> Leave text empty</li>
-                <li><strong>Provider Login:</strong> Text = "1"</li>
-                <li><strong>Provider with PIN:</strong> Text = "1*1234"</li>
-                <li><strong>Patient Services:</strong> Text = "2"</li>
-                <li><strong>Emergency Services:</strong> Text = "3"</li>
-            </ul>
-        </div>
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>🧪 USSD Test Interface - Afya Medical EHR</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+            <style>
+                body { background: #f8f9fa; }
+                .test-container { max-width: 600px; margin: 50px auto; }
+                .ussd-code { background: #212529; color: #ffc107; padding: 10px; border-radius: 5px; font-family: monospace; }
+            </style>
+        </head>
+        <body>
+            <div class="container test-container">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="mb-0">🧪 USSD Test Interface</h2>
+                        <small>Test the Afya Medical EHR USSD system locally</small>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Session ID:</strong></label>
+                                <input name="sessionId" value="test_session_''' + str(datetime.now().timestamp()) + '''" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Service Code:</strong></label>
+                                <input name="serviceCode" value="*714#" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Phone Number:</strong></label>
+                                <input name="phoneNumber" value="+233200000000" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Text (Menu Input):</strong></label>
+                                <input name="text" placeholder="e.g., 1*1234" class="form-control">
+                                <div class="form-text">Leave empty for main menu</div>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-lg w-100">
+                                📱 Send USSD Request
+                            </button>
+                        </form>
+                    </div>
+                    <div class="card-footer bg-light">
+                        <h5>🔧 Test Sequences:</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled small">
+                                    <li><strong>Main Menu:</strong> <code>(empty)</code></li>
+                                    <li><strong>Provider Login:</strong> <code>1</code></li>
+                                    <li><strong>Provider + PIN:</strong> <code>1*1234</code></li>
+                                    <li><strong>Patient Services:</strong> <code>2</code></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled small">
+                                    <li><strong>Emergency:</strong> <code>3</code></li>
+                                    <li><strong>System Info:</strong> <code>4</code></li>
+                                    <li><strong>Patient Records:</strong> <code>2*1</code></li>
+                                    <li><strong>Provider Menu:</strong> <code>1*1234*1</code></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="alert alert-info mt-3">
+                            <strong>Demo PINs:</strong> 1234, 5678, 9012
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="/" class="btn btn-outline-primary">← Back to Dashboard</a>
+                </div>
+            </div>
+        </body>
+        </html>
         '''
     else:
         return ussd_callback()
@@ -413,11 +636,22 @@ def test_ussd():
 
 # Initialize database on startup
 with app.app_context():
-    init_db()
+    db_initialized = init_db()
+    if not db_initialized:
+        print("❌ Failed to initialize database!")
+    else:
+        print("✅ Database initialized successfully!")
 
 if __name__ == '__main__':
     # Get port from environment variable or default to 5000
     port = int(os.environ.get('PORT', 5000))
+
+    print(f"\n🏥 Afya Medical EHR System Starting...")
+    print(f"🌐 Web Interface: http://localhost:{port}")
+    print(f"🧪 USSD Test: http://localhost:{port}/test-ussd")
+    print(f"❤️ Health Check: http://localhost:{port}/health")
+    print(f"📱 USSD Code: *714#")
+    print("=" * 60)
 
     # Run the application
     app.run(

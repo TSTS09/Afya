@@ -74,6 +74,11 @@
             padding: 2rem;
             margin-bottom: 2rem;
         }
+
+        .nav-link.active {
+            font-weight: bold;
+            color: var(--afya-primary) !important;
+        }
     </style>
 </head>
 
@@ -90,12 +95,14 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <div class="navbar-nav ms-auto">
-                    <a class="nav-link" href="/dashboard"><i class="fas fa-tachometer-alt me-1"></i>Dashboard</a>
+                    <a class="nav-link active" href="/"><i class="fas fa-tachometer-alt me-1"></i>Dashboard</a>
                     <a class="nav-link" href="/patients"><i class="fas fa-users me-1"></i>Patients</a>
-                    <a class="nav-link" href="/providers"><i class="fas fa-user-md me-1"></i>Providers</a>
-                    <a class="nav-link" href="/facilities"><i class="fas fa-hospital me-1"></i>Facilities</a>
-                    <a class="nav-link" href="/medical-records"><i class="fas fa-file-medical me-1"></i>Records</a>
+                    <a class="nav-link" href="/register-facility"><i class="fas fa-hospital me-1"></i>Register
+                        Facility</a>
+                    <a class="nav-link" href="/register-provider"><i class="fas fa-user-md me-1"></i>Register
+                        Provider</a>
                     <a class="nav-link" href="/logs"><i class="fas fa-list me-1"></i>Logs</a>
+                    <a class="nav-link" href="/test-ussd"><i class="fas fa-mobile-alt me-1"></i>Test USSD</a>
                 </div>
             </div>
         </div>
@@ -153,6 +160,15 @@
                         <i class="fas fa-hospital icon-large mb-3"></i>
                         <h3 class="card-title">{{ total_facilities or 0 }}</h3>
                         <p class="card-text">Healthcare Facilities</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card card-custom h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-users icon-large mb-3"></i>
+                        <h3 class="card-title">{{ total_patients or 0 }}</h3>
+                        <p class="card-text">Total Patients</p>
                     </div>
                 </div>
             </div>
@@ -219,7 +235,7 @@
             </div>
         </div>
 
-        <!-- Recent Activity -->
+        <!-- Recent Activity and Quick Actions -->
         <div class="row">
             <div class="col-md-8">
                 <div class="card card-custom">
@@ -269,7 +285,7 @@
                             </table>
                         </div>
                         <div class="text-center mt-3">
-                            <a href="/medical-records" class="btn btn-outline-primary">
+                            <a href="/patients" class="btn btn-outline-primary">
                                 <i class="fas fa-eye me-1"></i>View All Records
                             </a>
                         </div>
@@ -278,31 +294,8 @@
                             <i class="fas fa-file-medical fa-3x text-muted mb-3"></i>
                             <h5 class="text-muted">No medical records yet</h5>
                             <p class="text-muted">Records will appear here as healthcare providers create them</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <!-- Quick Actions -->
-                <div class="card card-custom mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-bolt me-2 text-warning"></i>
-                            Quick Actions
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-grid gap-2">
-                            <a href="/register-facility" class="btn btn-outline-primary">
-                                <i class="fas fa-hospital me-2"></i>Register Facility
-                            </a>
-                            <a href="/register-provider" class="btn btn-outline-success">
-                                <i class="fas fa-user-md me-2"></i>Register Provider
-                            </a>
-                            <a href="/patients" class="btn btn-outline-info">
-                                <i class="fas fa-search me-2"></i>Search Patients
+                            <a href="/test-ussd" class="btn btn-outline-warning">
+                                <i class="fas fa-mobile-alt me-2"></i>Test USSD
                             </a>
                             <a href="/logs" class="btn btn-outline-secondary">
                                 <i class="fas fa-list me-2"></i>View System Logs
@@ -353,6 +346,12 @@
                                     </span>
                                 </div>
                             </div>
+                        </div>
+                        <hr>
+                        <div class="text-center">
+                            <a href="/health" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-chart-line me-1"></i>Detailed Status
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -412,6 +411,35 @@
                                 </ol>
                             </div>
                         </div>
+
+                        <!-- Demo Information -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <h6 class="alert-heading">
+                                        <i class="fas fa-info-circle me-2"></i>Demo Information
+                                    </h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>Demo Provider PINs:</strong>
+                                            <ul class="mb-0">
+                                                <li>1234 - Dr. Kwame Asante (General Medicine)</li>
+                                                <li>5678 - Dr. Ama Mensah (Pediatrics)</li>
+                                                <li>9012 - Dr. Kofi Boateng (Internal Medicine)</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Test Phone Numbers:</strong>
+                                            <ul class="mb-0">
+                                                <li>0200123456 - John Doe</li>
+                                                <li>0240234567 - Jane Smith</li>
+                                                <li>0260345678 - Kwame Osei</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -429,6 +457,17 @@
                     <p class="small text-muted mb-0">
                         © 2024 Afya Medical Systems. Built with ❤️ for better healthcare access.
                     </p>
+                    <div class="mt-2">
+                        <a href="/health" class="text-light me-3">
+                            <i class="fas fa-heartbeat me-1"></i>System Health
+                        </a>
+                        <a href="/test-ussd" class="text-light me-3">
+                            <i class="fas fa-mobile-alt me-1"></i>Test USSD
+                        </a>
+                        <a href="/logs" class="text-light">
+                            <i class="fas fa-list me-1"></i>System Logs
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -454,21 +493,95 @@
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Update system status indicators dynamically
+        function updateSystemStatus() {
+            fetch('/health', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Update status indicators based on health check
+                    console.log('System health:', data);
+
+                    // You can add logic here to update status badges based on actual system health
+                    if (data.status === 'healthy') {
+                        // All systems operational
+                        document.querySelectorAll('.badge').forEach(badge => {
+                            if (badge.textContent.includes('Online') ||
+                                badge.textContent.includes('Connected') ||
+                                badge.textContent.includes('Active') ||
+                                badge.textContent.includes('Operational')) {
+                                badge.className = 'badge bg-success';
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.warn('Health check failed:', error);
+                    // Update status indicators to show warning
                 });
+        }
+
+        // Check system status every 30 seconds
+        updateSystemStatus();
+        setInterval(updateSystemStatus, 30000);
+
+        // Add click tracking for navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function () {
+                // Remove active class from all nav links
+                document.querySelectorAll('.nav-link').forEach(navLink => {
+                    navLink.classList.remove('active');
+                });
+
+                // Add active class to clicked link (if not navigating away)
+                if (this.getAttribute('href') === window.location.pathname) {
+                    this.classList.add('active');
+                }
             });
         });
     </script>
 </body>
 
-</html> mb-3">
-<div class="card stat-card card-custom h-100">
-    <div class="card-body text-center">
-        <i class="fas fa-users icon-large mb-3"></i>
-        <h3 class="card-title">{{ total_patients or 0 }}</h3>
-        <p class="card-text">Total Patients</p>
-    </div>
+</html>btn btn-primary">
+<i class="fas fa-test-tube me-1"></i>Test USSD System
+</a>
+</div>
+{% endif %}
 </div>
 </div>
-<div class="col-md-3
+</div>
+
+<div class="col-md-4">
+    <!-- Quick Actions -->
+    <div class="card card-custom mb-4">
+        <div class="card-header bg-white">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-bolt me-2 text-warning"></i>
+                Quick Actions
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="d-grid gap-2">
+                <a href="/register-facility" class="btn btn-outline-primary">
+                    <i class="fas fa-hospital me-2"></i>Register Facility
+                </a>
+                <a href="/register-provider" class="btn btn-outline-success">
+                    <i class="fas fa-user-md me-2"></i>Register Provider
+                </a>
+                <a href="/patients" class="btn btn-outline-info">
+                    <i class="fas fa-search me-2"></i>View Patients
+                </a>
+                <a href="/test-ussd" class="
