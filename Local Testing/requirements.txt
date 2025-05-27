@@ -1,5 +1,4 @@
 # Afya Medical EHR - Latest Requirements (2025)
-# All packages updated to their latest stable versions
 
 # Core Framework 
 Flask==3.1.1

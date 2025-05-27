@@ -6,7 +6,7 @@ Updated with proper environment variable handling
 import os
 import hashlib
 from datetime import datetime
-from dotenv import load_dotenv  
+from dotenv import load_dotenv
 from session_manager import SessionManager
 from medical_menu import MedicalMenu
 from flask import Flask, make_response, request, flash, url_for, redirect, render_template, jsonify
@@ -392,7 +392,7 @@ def index():
 
 @app.route('/ussd/callback', methods=['POST', 'GET'])
 def ussd_callback():
-    """Main USSD callback function for Africa's Talking"""
+    """Enhanced USSD callback optimized for basic phones"""
     try:
         # Get parameters from USSD provider
         session_id = request.values.get("sessionId", None)
@@ -400,18 +400,20 @@ def ussd_callback():
         phone_number = sanitize_phone(request.values.get("phoneNumber", None))
         text = request.values.get("text", '')
 
-        print(
-            f"📱 USSD Request: SessionID={session_id}, Service={service_code}, Phone={phone_number}, Text='{text}'")
+        print(f"📱 USSD Request: SessionID={session_id}, Service={service_code}, Phone={phone_number}, Text='{text}'")
 
         # Log the USSD interaction
         log_activity(
-            phone_number, f"USSD_Access: {text}", f"Service: {service_code}")
+            phone_number, 
+            f"USSD_Access: {text}", 
+            f"Service: {service_code}"
+        )
 
-        # Handle empty text (initial USSD dial)
+        # Handle empty text (initial USSD dial) - optimized for basic phones
         if text == '':
             return medical_menu.main_menu(session_id, phone_number)
 
-        # Route based on user selection
+        # Route based on user selection - simplified for basic phones
         if text == '1':
             return medical_menu.provider_login_menu(session_id, phone_number)
         elif text == '2':
@@ -428,7 +430,7 @@ def ussd_callback():
     except Exception as e:
         print(f"❌ USSD callback error: {e}")
         return make_response(
-            f"END System temporarily unavailable.\nPlease try again later.\nError: {str(e)[:50]}",
+            f"END System error.\nPlease try again.\nDial *714# to restart.",
             200,
             {'Content-Type': 'text/plain'}
         )
@@ -502,6 +504,106 @@ def list_patients():
     except:
         patients = []
     return render_template('patients.html', patients=patients)
+
+# ADD THESE ROUTES TO YOUR app.py FILE
+# Insert after your existing routes (around line 300-400)
+
+
+@app.route('/providers')
+def list_providers():
+    """List all healthcare providers"""
+    try:
+        providers = HealthcareProvider.query.filter_by(is_active=True).all()
+        return render_template('providers.html', providers=providers)
+    except Exception as e:
+        print(f"Error loading providers: {e}")
+        flash(f'Error loading providers: {str(e)}', 'error')
+        return redirect(url_for('index'))
+
+
+@app.route('/facilities')
+def list_facilities():
+    """List all healthcare facilities"""
+    try:
+        facilities = HealthcareFacility.query.filter_by(is_active=True).all()
+        return render_template('facilities.html', facilities=facilities)
+    except Exception as e:
+        print(f"Error loading facilities: {e}")
+        flash(f'Error loading facilities: {str(e)}', 'error')
+        return redirect(url_for('index'))
+
+
+@app.route('/api/provider/<int:provider_id>/toggle-status', methods=['POST'])
+def toggle_provider_status(provider_id):
+    """Toggle provider active/inactive status"""
+    try:
+        provider = HealthcareProvider.query.get_or_404(provider_id)
+        provider.is_active = not provider.is_active
+        db.session.commit()
+
+        log_activity(
+            provider.phone,
+            f"Status_Toggle",
+            f"Provider {provider.name} {'activated' if provider.is_active else 'deactivated'}"
+        )
+
+        return jsonify({
+            'success': True,
+            'message': f"Provider {'activated' if provider.is_active else 'deactivated'} successfully",
+            'new_status': provider.is_active
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/api/facility/<int:facility_id>/toggle-status', methods=['POST'])
+def toggle_facility_status(facility_id):
+    """Toggle facility active/inactive status"""
+    try:
+        facility = HealthcareFacility.query.get_or_404(facility_id)
+        facility.is_active = not facility.is_active
+        db.session.commit()
+
+        log_activity(
+            facility.phone,
+            f"Facility_Status_Toggle",
+            f"Facility {facility.name} {'activated' if facility.is_active else 'deactivated'}"
+        )
+
+        return jsonify({
+            'success': True,
+            'message': f"Facility {'activated' if facility.is_active else 'deactivated'} successfully",
+            'new_status': facility.is_active
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/api/provider/<int:provider_id>/reset-pin', methods=['POST'])
+def reset_provider_pin(provider_id):
+    """Reset provider PIN"""
+    try:
+        provider = HealthcareProvider.query.get_or_404(provider_id)
+
+        # Generate a new random PIN
+        import random
+        new_pin = str(random.randint(1000, 9999))
+        provider.pin = hash_pin(new_pin)
+        db.session.commit()
+
+        log_activity(
+            provider.phone,
+            "PIN_Reset",
+            f"PIN reset for provider {provider.name}"
+        )
+
+        return jsonify({
+            'success': True,
+            'message': f"PIN reset successfully. New PIN: {new_pin}",
+            'new_pin': new_pin  # Remove this in production!
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 
 @app.route('/logs')
