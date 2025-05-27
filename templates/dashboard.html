@@ -23,6 +23,7 @@
         border: 3px solid var(--afya-primary);
         display: inline-block;
         animation: pulse-glow 3s infinite;
+        cursor: pointer;
     }
 
     .stat-card {
@@ -86,17 +87,6 @@
         background: linear-gradient(135deg, #fff3cd, #ffeaa7);
         border: 2px solid #ffc107;
         border-radius: 15px;
-    }
-
-    @keyframes pulse-glow {
-        0%, 100% { 
-            box-shadow: 0 0 10px rgba(46, 139, 87, 0.5);
-            transform: scale(1);
-        }
-        50% { 
-            box-shadow: 0 0 25px rgba(46, 139, 87, 0.8);
-            transform: scale(1.02);
-        }
     }
 </style>
 {% endblock %}
@@ -332,39 +322,29 @@
                     </h5>
                 </div>
                 <div class="card-body system-status">
-                    <div class="row text-center">
-                        <div class="col-12 mb-3">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <span>USSD Gateway</span>
-                                <span class="badge bg-success">
-                                    <i class="fas fa-check-circle me-1"></i>Online
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-12 mb-3">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <span>Database</span>
-                                <span class="badge bg-success">
-                                    <i class="fas fa-check-circle me-1"></i>Connected
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-12 mb-3">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <span>SMS Service</span>
-                                <span class="badge bg-success">
-                                    <i class="fas fa-check-circle me-1"></i>Active
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <span>Web Interface</span>
-                                <span class="badge bg-success">
-                                    <i class="fas fa-check-circle me-1"></i>Operational
-                                </span>
-                            </div>
-                        </div>
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span>USSD Gateway</span>
+                        <span class="badge bg-success">
+                            <i class="fas fa-check-circle me-1"></i>Online
+                        </span>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span>Database</span>
+                        <span class="badge bg-success">
+                            <i class="fas fa-check-circle me-1"></i>Connected
+                        </span>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span>SMS Service</span>
+                        <span class="badge bg-success">
+                            <i class="fas fa-check-circle me-1"></i>Active
+                        </span>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span>Web Interface</span>
+                        <span class="badge bg-success">
+                            <i class="fas fa-check-circle me-1"></i>Operational
+                        </span>
                     </div>
                     <hr>
                     <div class="text-center">
@@ -390,14 +370,6 @@
                         <div class="col-md-6">
                             <h5><i class="fas fa-user-md text-primary me-2"></i>For Healthcare Providers:</h5>
                             <ol class="list-unstyled">
-                                <li class="mb-2">
-                                    <span class="badge bg-primary rounded-pill me-2">1</span>
-                                    Register your facility and get provider credentials
-                                </li>
-                                <li class="mb-2">
-                                    <span class="badge bg-primary rounded-pill me-2">2</span>
-                                    Dial <strong>*714#</strong> from any mobile phone
-                                </li>
                                 <li class="mb-2">
                                     <span class="badge bg-primary rounded-pill me-2">3</span>
                                     Select "Healthcare Provider" and enter your PIN
@@ -469,57 +441,6 @@
 
 {% block extra_js %}
 <script>
-    // Update system status indicators dynamically
-    function updateSystemStatus() {
-        fetch('/health', {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Update status indicators based on health check
-            console.log('System health:', data);
-
-            // You can add logic here to update status badges based on actual system health
-            if (data.status === 'healthy') {
-                // All systems operational
-                document.querySelectorAll('.system-status .badge').forEach(badge => {
-                    if (badge.textContent.includes('Online') ||
-                        badge.textContent.includes('Connected') ||
-                        badge.textContent.includes('Active') ||
-                        badge.textContent.includes('Operational')) {
-                        badge.className = 'badge bg-success';
-                    }
-                });
-            }
-        })
-        .catch(error => {
-            console.warn('Health check failed:', error);
-            // Update status indicators to show warning
-        });
-    }
-
-    // Check system status every 30 seconds
-    updateSystemStatus();
-    setInterval(updateSystemStatus, 30000);
-
-    // Add click tracking for navigation
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', function () {
-            // Remove active class from all nav links
-            document.querySelectorAll('.nav-link').forEach(navLink => {
-                navLink.classList.remove('active');
-            });
-
-            // Add active class to clicked link (if not navigating away)
-            if (this.getAttribute('href') === window.location.pathname) {
-                this.classList.add('active');
-            }
-        });
-    });
-
     // USSD code click to copy functionality
     document.querySelector('.ussd-code').addEventListener('click', function() {
         navigator.clipboard.writeText('*714#').then(function() {
@@ -533,5 +454,44 @@
             }, 2000);
         });
     });
+
+    // Update system status indicators dynamically
+    function updateSystemStatus() {
+        fetch('/health', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('System health:', data);
+            if (data.status === 'healthy') {
+                document.querySelectorAll('.system-status .badge').forEach(badge => {
+                    if (badge.textContent.includes('Online') ||
+                        badge.textContent.includes('Connected') ||
+                        badge.textContent.includes('Active') ||
+                        badge.textContent.includes('Operational')) {
+                        badge.className = 'badge bg-success';
+                    }
+                });
+            }
+        })
+        .catch(error => {
+            console.warn('Health check failed:', error);
+        });
+    }
+
+    // Check system status every 30 seconds
+    updateSystemStatus();
+    setInterval(updateSystemStatus, 30000);
 </script>
-{% endblock %}
+{% endblock %}-2">
+                                    <span class="badge bg-primary rounded-pill me-2">1</span>
+                                    Register your facility and get provider credentials
+                                </li>
+                                <li class="mb-2">
+                                    <span class="badge bg-primary rounded-pill me-2">2</span>
+                                    Dial <strong>*714#</strong> from any mobile phone
+                                </li>
+                                <li class="mb

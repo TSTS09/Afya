@@ -1,224 +1,183 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patients - Afya Medical EHR</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
+{% block title %}Patients - Afya Medical EHR{% endblock %}
 
-<body>
+{% block content %}
+<div class="container mt-4">
+    <!-- Page Header -->
+    <div class="page-header text-center">
+        <h1 class="display-5 fw-bold text-dark mb-3">
+            <i class="fas fa-users text-success me-3"></i>
+            Registered Patients
+        </h1>
+        <p class="lead text-muted mb-0">
+            View and manage patient records in the Afya Medical EHR system
+        </p>
+    </div>
 
-    <div class="container mt-4">
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        {% for message in messages %}
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i>{{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <!-- Patients Table -->
+    <div class="card card-custom">
+        <div class="card-header bg-white">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-users me-2 text-primary"></i>
+                        Patient Records
+                    </h5>
+                </div>
+                <div class="col-auto">
+                    <span class="badge bg-primary">{{ patients|length }} Total Patients</span>
+                </div>
+            </div>
         </div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
+        <div class="card-body">
+            {% if patients %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th><i class="fas fa-hashtag me-1"></i>ID</th>
+                            <th><i class="fas fa-user me-1"></i>Patient Name</th>
+                            <th><i class="fas fa-mobile-alt me-1"></i>Phone Number</th>
+                            <th><i class="fas fa-venus-mars me-1"></i>Gender</th>
+                            <th><i class="fas fa-tint me-1"></i>Blood Type</th>
+                            <th><i class="fas fa-calendar me-1"></i>Registration Date</th>
+                            <th><i class="fas fa-tools me-1"></i>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients %}
+                        <tr>
+                            <td>
+                                <span class="badge bg-secondary">#{{ patient.id }}</span>
+                            </td>
+                            <td>
+                                <strong>{{ patient.name }}</strong>
+                                {% if patient.date_of_birth %}
+                                <br><small class="text-muted">DOB: {{ patient.date_of_birth }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <code>{{ patient.phone }}</code>
+                            </td>
+                            <td>
+                                {% if patient.gender %}
+                                <span class="badge {% if patient.gender == 'Male' %}bg-info{% else %}bg-warning{% endif %}">
+                                    <i class="fas {% if patient.gender == 'Male' %}fa-mars{% else %}fa-venus{% endif %} me-1"></i>
+                                    {{ patient.gender }}
+                                </span>
+                                {% else %}
+                                <small class="text-muted">Not specified</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if patient.blood_type %}
+                                <span class="badge bg-danger">{{ patient.blood_type }}</span>
+                                {% else %}
+                                <small class="text-muted">Unknown</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ patient.registration_date }}</small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" title="View Records">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-success btn-sm" title="Add Record">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
-        <!-- Page Header -->
-        <div class="page-header text-center">
-            <h1 class="display-5 fw-bold text-dark mb-3">
-                <i class="fas fa-users text-success me-3"></i>
-                Registered Patients
-            </h1>
-            <p class="lead text-muted mb-0">
-                View and manage patient records in the Afya Medical EHR system
-            </p>
-        </div>
-
-        <!-- Patients Table -->
-        <div class="card card-custom">
-            <div class="card-header bg-white">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-users me-2 text-primary"></i>
-                            Patient Records
-                        </h5>
+            <!-- Statistics -->
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">{{ patients|length }}</h5>
+                            <p class="card-text small text-muted">Total Patients</p>
+                        </div>
                     </div>
-                    <div class="col-auto">
-                        <span class="badge bg-primary">{{ patients|length }} Total Patients</span>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">{{ patients|selectattr("gender", "equalto", "Male")|list|length }}</h5>
+                            <p class="card-text small text-muted">Male Patients</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">{{ patients|selectattr("gender", "equalto", "Female")|list|length }}</h5>
+                            <p class="card-text small text-muted">Female Patients</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">{{ patients|selectattr("blood_type")|list|length }}</h5>
+                            <p class="card-text small text-muted">With Blood Type</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="card-body">
-                {% if patients %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th><i class="fas fa-hashtag me-1"></i>ID</th>
-                                <th><i class="fas fa-user me-1"></i>Patient Name</th>
-                                <th><i class="fas fa-mobile-alt me-1"></i>Phone Number</th>
-                                <th><i class="fas fa-venus-mars me-1"></i>Gender</th>
-                                <th><i class="fas fa-tint me-1"></i>Blood Type</th>
-                                <th><i class="fas fa-calendar me-1"></i>Registration Date</th>
-                                <th><i class="fas fa-tools me-1"></i>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for patient in patients %}
-                            <tr>
-                                <td>
-                                    <span class="badge bg-secondary">#{{ patient.id }}</span>
-                                </td>
-                                <td>
-                                    <strong>{{ patient.name }}</strong>
-                                    {% if patient.date_of_birth %}
-                                    <br><small class="text-muted">DOB: {{ patient.date_of_birth }}</small>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <code>{{ patient.phone }}</code>
-                                </td>
-                                <td>
-                                    {% if patient.gender %}
-                                    <span
-                                        class="badge {% if patient.gender == 'Male' %}bg-info{% else %}bg-warning{% endif %}">
-                                        <i
-                                            class="fas {% if patient.gender == 'Male' %}fa-mars{% else %}fa-venus{% endif %} me-1"></i>
-                                        {{ patient.gender }}
-                                    </span>
-                                    {% else %}
-                                    <small class="text-muted">Not specified</small>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if patient.blood_type %}
-                                    <span class="badge bg-danger">{{ patient.blood_type }}</span>
-                                    {% else %}
-                                    <small class="text-muted">Unknown</small>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <small class="text-muted">{{ patient.registration_date }}</small>
-                                </td>
-                                <td>
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <button type="button" class="btn btn-outline-primary btn-sm"
-                                            title="View Records">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-outline-success btn-sm" title="Add Record">
-                                            <i class="fas fa-plus"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-user-plus fa-4x text-muted mb-4"></i>
+                <h4 class="text-muted">No patients registered yet</h4>
+                <p class="text-muted mb-4">
+                    Patients will be registered through the USSD system by healthcare providers.
+                </p>
+                <div class="card bg-light d-inline-block">
+                    <div class="card-body">
+                        <h6 class="card-title">How to register patients:</h6>
+                        <ol class="text-start small mb-0">
+                            <li>Dial <strong>*714#</strong> from your phone</li>
+                            <li>Select <strong>"1"</strong> for Healthcare Provider</li>
+                            <li>Enter your PIN (demo PIN: <code>1234</code>)</li>
+                            <li>Select <strong>"2"</strong> for New Patient</li>
+                        </ol>
+                    </div>
                 </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 
-                <!-- Statistics -->
-                <div class="row mt-4">
-                    <div class="col-md-3">
-                        <div class="card bg-light">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">{{ patients|length }}</h5>
-                                <p class="card-text small text-muted">Total Patients</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-light">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">{{ patients|selectattr("gender", "equalto", "Male")|list|length
-                                    }}</h5>
-                                <p class="card-text small text-muted">Male Patients</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-light">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">{{ patients|selectattr("gender", "equalto", "Female")|list|length
-                                    }}</h5>
-                                <p class="card-text small text-muted">Female Patients</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-light">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">{{ patients|selectattr("blood_type")|list|length }}</h5>
-                                <p class="card-text small text-muted">With Blood Type</p>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-mobile-alt fa-2x text-primary mb-3"></i>
+                    <h5>USSD Patient Registration</h5>
+                    <p class="text-muted">Register new patients via USSD</p>
+                    <div class="ussd-code bg-dark text-warning p-2 rounded">*714#</div>
                 </div>
-                {% else %}
-                <div class="text-center py-5">
-                    <i class="fas fa-user-plus fa-4x text-muted mb-4"></i>
-                    <h4 class="text-muted">No patients registered yet</h4>
-                    <p class="text-muted mb-4">
-                        Patients will be registered through the USSD system by healthcare providers.
-                    </p>
-                    <div class="card bg-light d-inline-block">
-                        <div class="card-body">
-                            <h6 class="card-title">How to register patients:</h6>
-                            <ol class="text-start small mb-0">
-                                <li>Dial <strong>*384*15879#</strong> from your phone</li>
-                                <li>Select <strong>"1"</strong> for Healthcare Provider</li>
-                                <li>Enter your PIN (demo PIN: <code>1234</code>)</li>
-                                <li>Select <strong>"2"</strong> for New Patient</li>
-                            </ol>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
             </div>
         </div>
-
-        <!-- Quick Actions -->
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <i class="fas fa-mobile-alt fa-2x text-primary mb-3"></i>
-                        <h5>USSD Patient Registration</h5>
-                        <p class="text-muted">Register new patients via USSD</p>
-                        <div class="ussd-code bg-dark text-warning p-2 rounded">*384*15879#</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <i class="fas fa-globe fa-2x text-success mb-3"></i>
-                        <h5>Web Registration</h5>
-                        <p class="text-muted">Test USSD functionality online</p>
-                        <a href="/test-ussd" class="btn btn-afya">
-                            <i class="fas fa-test-tube me-1"></i>Test USSD
-                        </a>
-                    </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-globe fa-2x text-success mb-3"></i>
+                    <h5>Web Registration</h5>
+                    <p class="text-muted">Test USSD functionality online</p>
+                    <a href="/test-ussd" class="btn btn-afya">
+                        <i class="fas fa-test-tube me-1"></i>Test USSD
+                    </a>
                 </div>
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Auto-dismiss alerts after 5 seconds
-        document.addEventListener('DOMContentLoaded', function () {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(function (alert) {
-                setTimeout(function () {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                }, 5000);
-            });
-        });
-    </script>
-</body>
-
-</html>
+</div>
+{% endblock %}

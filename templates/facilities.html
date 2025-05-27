@@ -1,473 +1,375 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Healthcare Facilities - Afya Medical EHR</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --afya-primary: #2E8B57;
-            --afya-secondary: #20B2AA;
-            --afya-accent: #FFD700;
-            --afya-dark: #1E1E1E;
-        }
+{% extends "base.html" %}
 
-        .page-header {
-            background: linear-gradient(135deg, rgba(46, 139, 87, 0.1), rgba(32, 178, 170, 0.1));
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
+{% block title %}Healthcare Facilities - Afya Medical EHR{% endblock %}
 
-        .card-custom {
-            border-left: 4px solid var(--afya-primary);
-            transition: transform 0.2s;
-        }
+{% block extra_css %}
+<style>
+    .facility-card {
+        border-radius: 20px;
+    }
 
-        .card-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+    .stats-card {
+        background: linear-gradient(135deg, var(--afya-primary), var(--afya-secondary));
+        color: white;
+        border-radius: 15px;
+    }
 
-        .facility-card {
-            border-radius: 15px;
-            transition: all 0.3s ease;
-            border: 1px solid #e9ecef;
-            overflow: hidden;
-        }
+    .search-box {
+        border-radius: 25px;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem 1.5rem;
+    }
 
-        .facility-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }
+    .search-box:focus {
+        border-color: var(--afya-primary);
+        box-shadow: 0 0 0 0.2rem rgba(46, 139, 87, 0.25);
+    }
 
-        .facility-header {
-            background: linear-gradient(135deg, var(--afya-primary), var(--afya-secondary));
-            color: white;
-            padding: 1.5rem;
-            position: relative;
-        }
+    .facility-stats {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
 
-        .facility-icon {
-            font-size: 2.5rem;
-            opacity: 0.8;
-        }
+    .facility-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
 
-        .facility-type-badge {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            font-size: 0.8rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-        }
+    .facility-header {
+        background: linear-gradient(135deg, var(--afya-primary), var(--afya-secondary));
+        color: white;
+        padding: 1.5rem;
+        position: relative;
+    }
 
-        .stats-card {
-            background: linear-gradient(135deg, var(--afya-primary), var(--afya-secondary));
-            color: white;
-            border-radius: 15px;
-        }
+    .facility-icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+    }
 
-        .search-box {
-            border-radius: 25px;
-            border: 2px solid #e9ecef;
-            padding: 0.75rem 1.5rem;
-        }
+    .facility-type-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        font-size: 0.8rem;
+        padding: 0.25rem 0.75rem;
+        border-radius:15px;
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+    }
+</style>
+{% endblock %}
 
-        .search-box:focus {
-            border-color: var(--afya-primary);
-            box-shadow: 0 0 0 0.2rem rgba(46, 139, 87, 0.25);
-        }
+{% block content %}
+<div class="container mt-4">
+    <!-- Page Header -->
+    <div class="page-header text-center">
+        <h1 class="display-5 fw-bold text-dark mb-3">
+            <i class="fas fa-hospital text-primary me-3"></i>
+            Healthcare Facilities
+        </h1>
+        <p class="lead text-muted mb-0">
+            Manage healthcare facilities in the Afya Medical EHR network
+        </p>
+    </div>
 
-        .status-active {
-            color: #28a745;
-        }
-
-        .status-inactive {
-            color: #dc3545;
-        }
-
-        .facility-stats {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 1rem;
-            margin-top: 1rem;
-        }
-    </style>
-</head>
-<body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="/" style="color: #2E8B57 !important; font-weight: bold;">
-                <i class="fas fa-heartbeat me-2"></i>Afya Medical EHR
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="navbar-nav ms-auto">
-                    <a class="nav-link" href="/"><i class="fas fa-tachometer-alt me-1"></i>Dashboard</a>
-                    <a class="nav-link" href="/patients"><i class="fas fa-users me-1"></i>Patients</a>
-                    <div class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-md me-1"></i>Providers
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/providers">View All Providers</a></li>
-                            <li><a class="dropdown-item" href="/register-provider">Register Provider</a></li>
-                        </ul>
-                    </div>
-                    <div class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle active" href="#" data-bs-toggle="dropdown">
-                            <i class="fas fa-hospital me-1"></i>Facilities
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/facilities">View All Facilities</a></li>
-                            <li><a class="dropdown-item" href="/register-facility">Register Facility</a></li>
-                        </ul>
-                    </div>
-                    <div class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                            <i class="fas fa-cogs me-1"></i>System
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/test-ussd">Test USSD</a></li>
-                            <li><a class="dropdown-item" href="/logs">System Logs</a></li>
-                        </ul>
-                    </div>
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-hospital fa-2x mb-2"></i>
+                    <h3>{{ facilities|length or 0 }}</h3>
+                    <p class="mb-0">Total Facilities</p>
                 </div>
             </div>
         </div>
-    </nav>
-
-    <div class="container mt-4">
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        {% for message in messages %}
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i>{{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
-
-        <!-- Page Header -->
-        <div class="page-header text-center">
-            <h1 class="display-5 fw-bold text-dark mb-3">
-                <i class="fas fa-hospital text-primary me-3"></i>
-                Healthcare Facilities
-            </h1>
-            <p class="lead text-muted mb-0">
-                Manage healthcare facilities in the Afya Medical EHR network
-            </p>
-        </div>
-
-        <!-- Stats Cards -->
-        <div class="row mb-4">
-            <div class="col-md-3 mb-3">
-                <div class="card stats-card">
-                    <div class="card-body text-center">
-                        <i class="fas fa-hospital fa-2x mb-2"></i>
-                        <h3>{{ facilities|length or 0 }}</h3>
-                        <p class="mb-0">Total Facilities</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card stats-card">
-                    <div class="card-body text-center">
-                        <i class="fas fa-check-circle fa-2x mb-2"></i>
-                        <h3>{{ facilities|selectattr("is_active", "equalto", true)|list|length or 0 }}</h3>
-                        <p class="mb-0">Active Facilities</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card stats-card">
-                    <div class="card-body text-center">
-                        <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
-                        <h3>{{ facilities|map(attribute='location')|unique|list|length or 0 }}</h3>
-                        <p class="mb-0">Locations</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card stats-card">
-                    <div class="card-body text-center">
-                        <i class="fas fa-building fa-2x mb-2"></i>
-                        <h3>{{ facilities|map(attribute='facility_type')|unique|list|length or 0 }}</h3>
-                        <p class="mb-0">Facility Types</p>
-                    </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle fa-2x mb-2"></i>
+                    <h3>{{ facilities|selectattr("is_active", "equalto", true)|list|length or 0 }}</h3>
+                    <p class="mb-0">Active Facilities</p>
                 </div>
             </div>
         </div>
-
-        <!-- Search and Filter -->
-        <div class="row mb-4">
-            <div class="col-md-8">
-                <input type="text" class="form-control search-box" id="searchFacilities" 
-                       placeholder="🔍 Search facilities by name, location, or type...">
-            </div>
-            <div class="col-md-4">
-                <div class="d-grid">
-                    <a href="/register-facility" class="btn btn-success">
-                        <i class="fas fa-hospital me-2"></i>Register New Facility
-                    </a>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
+                    <h3>{{ facilities|map(attribute='location')|unique|list|length or 0 }}</h3>
+                    <p class="mb-0">Locations</p>
                 </div>
             </div>
         </div>
-
-        <!-- Facilities Display -->
-        {% if facilities %}
-        <div class="row" id="facilitiesGrid">
-            {% for facility in facilities %}
-            <div class="col-lg-6 col-xl-4 mb-4 facility-item" 
-                 data-name="{{ facility.name|lower }}" 
-                 data-location="{{ facility.location|lower }}" 
-                 data-type="{{ facility.facility_type|lower }}">
-                <div class="card facility-card h-100">
-                    <!-- Facility Header -->
-                    <div class="facility-header">
-                        <div class="facility-type-badge">
-                            {{ facility.facility_type or 'Clinic' }}
-                        </div>
-                        <div class="row align-items-center">
-                            <div class="col-3">
-                                <i class="fas fa-{% if facility.facility_type == 'Hospital' %}hospital{% elif facility.facility_type == 'Pharmacy' %}pills{% elif facility.facility_type == 'Laboratory' %}microscope{% else %}clinic-medical{% endif %} facility-icon"></i>
-                            </div>
-                            <div class="col-9">
-                                <h5 class="mb-1">{{ facility.name }}</h5>
-                                <p class="mb-0 opacity-75">
-                                    <i class="fas fa-map-marker-alt me-1"></i>{{ facility.location or 'Location not specified' }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Facility Details -->
-                    <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col-6">
-                                <p class="card-text mb-2">
-                                    <i class="fas fa-phone text-muted me-2"></i>
-                                    <small>{{ facility.phone or 'No phone' }}</small>
-                                </p>
-                            </div>
-                            <div class="col-6 text-end">
-                                <span class="badge {% if facility.is_active %}bg-success{% else %}bg-danger{% endif %}">
-                                    <i class="fas fa-circle me-1"></i>
-                                    {% if facility.is_active %}Active{% else %}Inactive{% endif %}
-                                </span>
-                            </div>
-                        </div>
-
-                        <p class="card-text mb-3">
-                            <i class="fas fa-calendar text-muted me-2"></i>
-                            <small class="text-muted">Registered: {{ facility.registration_date or 'Not specified' }}</small>
-                        </p>
-
-                        <!-- Facility Stats -->
-                        <div class="facility-stats">
-                            <div class="row text-center">
-                                <div class="col-6">
-                                    <h6 class="mb-0">{{ facility.providers|length if facility.providers else 0 }}</h6>
-                                    <small class="text-muted">Providers</small>
-                                </div>
-                                <div class="col-6">
-                                    <h6 class="mb-0">{{ facility.medical_records|length if facility.medical_records else 0 }}</h6>
-                                    <small class="text-muted">Records</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="d-grid gap-2 mt-3">
-                            <button class="btn btn-outline-primary btn-sm" onclick="viewFacility('{{ facility.id }}')">
-                                <i class="fas fa-eye me-1"></i>View Details
-                            </button>
-                            <div class="btn-group btn-group-sm" role="group">
-                                <button class="btn btn-outline-success" onclick="editFacility('{{ facility.id }}')" 
-                                        title="Edit Facility">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-outline-info" onclick="viewProviders('{{ facility.id }}')" 
-                                        title="View Providers">
-                                    <i class="fas fa-user-md"></i>
-                                </button>
-                                <button class="btn btn-outline-{% if facility.is_active %}warning{% else %}success{% endif %}" 
-                                        onclick="toggleFacilityStatus('{{ facility.id }}')" 
-                                        title="{% if facility.is_active %}Deactivate{% else %}Activate{% endif %}">
-                                    <i class="fas fa-{% if facility.is_active %}pause{% else %}play{% endif %}"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <!-- No Results Message -->
-        <div id="noResults" class="text-center py-5" style="display: none;">
-            <i class="fas fa-search fa-4x text-muted mb-3"></i>
-            <h4 class="text-muted">No facilities found</h4>
-            <p class="text-muted">Try adjusting your search criteria.</p>
-        </div>
-
-        {% else %}
-        <!-- Empty State -->
-        <div class="text-center py-5">
-            <i class="fas fa-hospital fa-4x text-muted mb-4"></i>
-            <h4 class="text-muted">No healthcare facilities registered yet</h4>
-            <p class="text-muted mb-4">
-                Start by registering healthcare facilities to build your EHR network.
-            </p>
-            
-            <!-- Registration Instructions -->
-            <div class="card d-inline-block bg-light">
-                <div class="card-body">
-                    <h6 class="card-title">Getting Started:</h6>
-                    <ol class="text-start small mb-0">
-                        <li><a href="/register-facility">Register healthcare facilities</a></li>
-                        <li><a href="/register-provider">Register healthcare providers</a></li>
-                        <li>Start using USSD system: <strong>*714#</strong></li>
-                        <li>Begin registering patients and creating records</li>
-                    </ol>
-                </div>
-            </div>
-
-            <div class="mt-4">
-                <a href="/register-facility" class="btn btn-success btn-lg me-3">
-                    <i class="fas fa-hospital me-2"></i>Register First Facility
-                </a>
-                <a href="/test-ussd" class="btn btn-outline-primary btn-lg">
-                    <i class="fas fa-mobile-alt me-2"></i>Test USSD System
-                </a>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Facility Types Overview -->
-        <div class="row mt-5">
-            <div class="col-12">
-                <div class="card border-0 bg-light">
-                    <div class="card-body">
-                        <h5 class="text-center mb-4">
-                            <i class="fas fa-building text-primary me-2"></i>
-                            Supported Facility Types
-                        </h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6><i class="fas fa-hospital text-primary me-2"></i>Primary Care Facilities:</h6>
-                                <ul class="small">
-                                    <li><strong>Hospitals</strong> - Full-service medical facilities</li>
-                                    <li><strong>Health Centers</strong> - Community healthcare facilities</li>
-                                    <li><strong>Clinics</strong> - Outpatient medical facilities</li>
-                                </ul>
-                            </div>
-                            <div class="col-md-6">
-                                <h6><i class="fas fa-cogs text-success me-2"></i>Specialized Services:</h6>
-                                <ul class="small">
-                                    <li><strong>Pharmacies</strong> - Medication dispensing facilities</li>
-                                    <li><strong>Laboratories</strong> - Diagnostic and testing facilities</li>
-                                    <li><strong>Emergency Centers</strong> - Urgent care facilities</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="text-center mt-3">
-                            <a href="/register-facility" class="btn btn-primary">
-                                <i class="fas fa-plus me-2"></i>Register New Facility
-                            </a>
-                        </div>
-                    </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-building fa-2x mb-2"></i>
+                    <h3>{{ facilities|map(attribute='facility_type')|unique|list|length or 0 }}</h3>
+                    <p class="mb-0">Facility Types</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-white text-center py-4 mt-5">
-        <div class="container">
-            <p class="mb-2"><strong>Afya Medical EHR</strong> - Healthcare Facilities Management</p>
-            <p class="small text-muted mb-0">© 2025 Afya Medical Systems</p>
+    <!-- Search and Filter -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <input type="text" class="form-control search-box" id="searchFacilities"
+                placeholder="🔍 Search facilities by name, location, or type...">
         </div>
-    </footer>
+        <div class="col-md-4">
+            <div class="d-grid">
+                <a href="/register-facility" class="btn btn-success">
+                    <i class="fas fa-hospital me-2"></i>Register New Facility
+                </a>
+            </div>
+        </div>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Search functionality
-        document.getElementById('searchFacilities').addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const facilityItems = document.querySelectorAll('.facility-item');
-            const noResults = document.getElementById('noResults');
-            let visibleCount = 0;
+    <!-- Facilities Display -->
+    {% if facilities %}
+    <div class="row" id="facilitiesGrid">
+        {% for facility in facilities %}
+        <div class="col-lg-6 col-xl-4 mb-4 facility-item" data-name="{{ facility.name|lower }}"
+            data-location="{{ facility.location|lower }}" data-type="{{ facility.facility_type|lower }}">
+            <div class="card facility-card h-100">
+                <!-- Facility Header -->
+                <div class="facility-header">
+                    <div class="facility-type-badge">
+                        {{ facility.facility_type or 'Clinic' }}
+                    </div>
+                    <div class="row align-items-center">
+                        <div class="col-3">
+                            <i
+                                class="fas fa-{% if facility.facility_type == 'Hospital' %}hospital{% elif facility.facility_type == 'Pharmacy' %}pills{% elif facility.facility_type == 'Laboratory' %}microscope{% else %}clinic-medical{% endif %} facility-icon"></i>
+                        </div>
+                        <div class="col-9">
+                            <h5 class="mb-1">{{ facility.name }}</h5>
+                            <p class="mb-0 opacity-75">
+                                <i class="fas fa-map-marker-alt me-1"></i>{{ facility.location or 'Location not
+                                specified' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-            facilityItems.forEach(item => {
-                const name = item.dataset.name;
-                const location = item.dataset.location;
-                const type = item.dataset.type;
-                
-                if (name.includes(searchTerm) || location.includes(searchTerm) || type.includes(searchTerm)) {
-                    item.style.display = 'block';
-                    visibleCount++;
-                } else {
-                    item.style.display = 'none';
-                }
-            });
+                <!-- Facility Details -->
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <p class="card-text mb-2">
+                                <i class="fas fa-phone text-muted me-2"></i>
+                                <small>{{ facility.phone or 'No phone' }}</small>
+                            </p>
+                        </div>
+                        <div class="col-6 text-end">
+                            <span class="badge {% if facility.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                <i class="fas fa-circle me-1"></i>
+                                {% if facility.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </div>
+                    </div>
 
-            // Show/hide no results message
-            if (visibleCount === 0 && facilityItems.length > 0) {
-                noResults.style.display = 'block';
+                    <p class="card-text mb-3">
+                        <i class="fas fa-calendar text-muted me-2"></i>
+                        <small class="text-muted">Registered: {{ facility.registration_date or 'Not specified'
+                            }}</small>
+                    </p>
+
+                    <!-- Facility Stats -->
+                    <div class="facility-stats">
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <h6 class="mb-0">{{ facility.providers|length if facility.providers else 0 }}</h6>
+                                <small class="text-muted">Providers</small>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="mb-0">{{ facility.medical_records|length if facility.medical_records else 0
+                                    }}</h6>
+                                <small class="text-muted">Records</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2 mt-3">
+                        <button class="btn btn-outline-primary btn-sm" onclick="viewFacility('{{ facility.id }}')">
+                            <i class="fas fa-eye me-1"></i>View Details
+                        </button>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button class="btn btn-outline-success" onclick="editFacility('{{ facility.id }}')"
+                                title="Edit Facility">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-info" onclick="viewProviders('{{ facility.id }}')"
+                                title="View Providers">
+                                <i class="fas fa-user-md"></i>
+                            </button>
+                            <button
+                                class="btn btn-outline-{% if facility.is_active %}warning{% else %}success{% endif %}"
+                                onclick="toggleFacilityStatus('{{ facility.id }}')"
+                                title="{% if facility.is_active %}Deactivate{% else %}Activate{% endif %}">
+                                <i class="fas fa-{% if facility.is_active %}pause{% else %}play{% endif %}"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- No Results Message -->
+    <div id="noResults" class="text-center py-5" style="display: none;">
+        <i class="fas fa-search fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">No facilities found</h4>
+        <p class="text-muted">Try adjusting your search criteria.</p>
+    </div>
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-5">
+        <i class="fas fa-hospital fa-4x text-muted mb-4"></i>
+        <h4 class="text-muted">No healthcare facilities registered yet</h4>
+        <p class="text-muted mb-4">
+            Start by registering healthcare facilities to build your EHR network.
+        </p>
+
+        <!-- Registration Instructions -->
+        <div class="card d-inline-block bg-light">
+            <div class="card-body">
+                <h6 class="card-title">Getting Started:</h6>
+                <ol class="text-start small mb-0">
+                    <li><a href="/register-facility">Register healthcare facilities</a></li>
+                    <li><a href="/register-provider">Register healthcare providers</a></li>
+                    <li>Start using USSD system: <strong>*714#</strong></li>
+                    <li>Begin registering patients and creating records</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a href="/register-facility" class="btn btn-success btn-lg me-3">
+                <i class="fas fa-hospital me-2"></i>Register First Facility
+            </a>
+            <a href="/test-ussd" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-mobile-alt me-2"></i>Test USSD System
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Facility Types Overview -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <h5 class="text-center mb-4">
+                        <i class="fas fa-building text-primary me-2"></i>
+                        Supported Facility Types
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-hospital text-primary me-2"></i>Primary Care Facilities:</h6>
+                            <ul class="small">
+                                <li><strong>Hospitals</strong> - Full-service medical facilities</li>
+                                <li><strong>Health Centers</strong> - Community healthcare facilities</li>
+                                <li><strong>Clinics</strong> - Outpatient medical facilities</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-cogs text-success me-2"></i>Specialized Services:</h6>
+                            <ul class="small">
+                                <li><strong>Pharmacies</strong> - Medication dispensing facilities</li>
+                                <li><strong>Laboratories</strong> - Diagnostic and testing facilities</li>
+                                <li><strong>Emergency Centers</strong> - Urgent care facilities</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="/register-facility" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Register New Facility
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Search functionality
+    document.getElementById('searchFacilities').addEventListener('input', function (e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const facilityItems = document.querySelectorAll('.facility-item');
+        const noResults = document.getElementById('noResults');
+        let visibleCount = 0;
+
+        facilityItems.forEach(item => {
+            const name = item.dataset.name;
+            const location = item.dataset.location;
+            const type = item.dataset.type;
+
+            if (name.includes(searchTerm) || location.includes(searchTerm) || type.includes(searchTerm)) {
+                item.style.display = 'block';
+                visibleCount++;
             } else {
-                noResults.style.display = 'none';
+                item.style.display = 'none';
             }
         });
 
-        // Facility action functions
-        function viewFacility(facilityId) {
-            alert(`Viewing details for facility ID: ${facilityId}`);
-            // TODO: Implement facility details modal or page
+        // Show/hide no results message
+        if (visibleCount === 0 && facilityItems.length > 0) {
+            noResults.style.display = 'block';
+        } else {
+            noResults.style.display = 'none';
         }
+    });
 
-        function editFacility(facilityId) {
-            alert(`Edit facility ID: ${facilityId}`);
-            // TODO: Implement edit functionality
-        }
+    // Facility action functions
+    function viewFacility(facilityId) {
+        alert(`Viewing details for facility ID: ${facilityId}`);
+    }
 
-        function viewProviders(facilityId) {
-            // Redirect to providers page filtered by facility
-            window.location.href = `/providers?facility=${facilityId}`;
-        }
+    function editFacility(facilityId) {
+        alert(`Edit facility ID: ${facilityId}`);
+    }
 
-        function toggleFacilityStatus(facilityId) {
-            if (confirm('Are you sure you want to change the status of this facility?')) {
-                alert(`Status toggle for facility ID: ${facilityId}`);
-                // TODO: Implement status toggle functionality
-                location.reload();
-            }
-        }
+    function viewProviders(facilityId) {
+        window.location.href = `/providers?facility=${facilityId}`;
+    }
 
-        // Auto-dismiss alerts
-        document.addEventListener('DOMContentLoaded', function () {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(function (alert) {
-                setTimeout(function () {
-                    if (alert.classList.contains('show')) {
-                        const bsAlert = new bootstrap.Alert(alert);
-                        bsAlert.close();
+    function toggleFacilityStatus(facilityId) {
+        if (confirm('Are you sure you want to change the status of this facility?')) {
+            fetch(`/api/facility/${facilityId}/toggle-status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(`Error: ${data.message}`);
                     }
-                }, 5000);
-            });
-        });
-    </script>
-</body>
-</html>
+                })
+                .catch(error => {
+                    alert(`Error: ${error.message}`);
+                });
+        }
+    }
+</script>
