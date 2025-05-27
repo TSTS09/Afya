@@ -2,14 +2,6 @@
 Afya Medical Menu System - USSD Interface for Medical EHR
 Fixed version with proper imports and error handling
 """
-
-import string
-import random
-import os
-import json
-from datetime import datetime, timedelta
-
-
 class MedicalMenu:
     """Medical EHR USSD Menu System"""
 
