@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USSD Test Interface - Afya Medical EHR</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --afya-primary: #2E8B57;
+            --afya-secondary: #20B2AA;
+            --afya-accent: #FFD700;
+            --afya-dark: #1E1E1E;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            color: var(--afya-primary) !important;
+        }
+
+        .ussd-simulator {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+        }
+
+        .phone-screen {
+            background: #000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 1rem;
+            border-radius: 10px;
+            min-height: 200px;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            border: 3px solid #333;
+        }
+
+        .ussd-input {
+            background: var(--afya-dark);
+            color: var(--afya-accent);
+            border: 2px solid var(--afya-primary);
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .ussd-input:focus {
+            background: var(--afya-dark);
+            color: var(--afya-accent);
+            border-color: var(--afya-secondary);
+            box-shadow: 0 0 0 0.2rem rgba(46, 139, 87, 0.25);
+        }
+
+        .test-scenario {
+            background: #f8f9fa;
+            border-left: 4px solid var(--afya-primary);
+            padding: 1rem;
+            margin: 0.5rem 0;
+        }
+
+        .quick-test-btn {
+            margin: 0.2rem;
+            font-size: 0.8rem;
+        }
+
+        .response-display {
+            background: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 1rem;
+            border-radius: 8px;
+            min-height: 150px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid #333;
+        }
+
+        .session-info {
+            background: linear-gradient(135deg, rgba(46, 139, 87, 0.1), rgba(32, 178, 170, 0.1));
+            border-radius: 10px;
+            padding: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-heartbeat me-2"></i>
+                Afya Medical EHR
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="/"><i class="fas fa-tachometer-alt me-1"></i>Dashboard</a>
+                    <a class="nav-link" href="/patients"><i class="fas fa-users me-1"></i>Patients</a>
+                    <a class="nav-link" href="/register-facility"><i class="fas fa-hospital me-1"></i>Register Facility</a>
+                    <a class="nav-link" href="/register-provider"><i class="fas fa-user-md me-1"></i>Register Provider</a>
+                    <a class="nav-link" href="/logs"><i class="fas fa-list me-1"></i>Logs</a>
+                    <a class="nav-link active" href="/test-ussd"><i class="fas fa-mobile-alt me-1"></i>Test USSD</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h1 class="display-5 fw-bold text-dark mb-3">
+                    <i class="fas fa-mobile-alt text-primary me-3"></i>
+                    USSD Test Interface
+                </h1>
+                <p class="lead text-muted">
+                    Test the Afya Medical EHR USSD system locally - No phone required!
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- USSD Simulator -->
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-mobile-alt me-2"></i>
+                            USSD Simulator
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Session Info -->
+                        <div class="session-info mb-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Session ID:</strong> <span id="currentSession">test_session_{{ timestamp }}</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Service Code:</strong> <span class="text-primary">*714#</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- USSD Form -->
+                        <form id="ussdForm" method="POST">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Session ID</label>
+                                    <input type="text" class="form-control" name="sessionId" id="sessionId" 
+                                           value="test_session_{{ timestamp }}" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Service Code</label>
+                                    <input type="text" class="form-control ussd-input" name="serviceCode" 
+                                           value="*714#" readonly>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Phone Number</label>
+                                    <input type="text" class="form-control ussd-input" name="phoneNumber" 
+                                           id="phoneNumber" value="+233200000000" 
+                                           placeholder="e.g., +233200123456">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">USSD Input</label>
+                                    <input type="text" class="form-control ussd-input" name="text" 
+                                           id="ussdText" placeholder="e.g., 1*1234" 
+                                           autocomplete="off">
+                                    <div class="form-text">Leave empty for main menu</div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i class="fas fa-paper-plane me-2"></i>Send USSD Request
+                                    </button>
+                                    <button type="button" class="btn btn-warning ms-2" onclick="clearSession()">
+                                        <i class="fas fa-refresh me-2"></i>New Session
+                                    </button>
+                                    <button type="button" class="btn btn-info ms-2" onclick="clearResponse()">
+                                        <i class="fas fa-eraser me-2"></i>Clear Response
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Response Display -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">USSD Response:</label>
+                            <div class="response-display" id="ussdResponse">
+                                <div class="text-muted">No response yet. Send a USSD request to see the response here.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Test Panel -->
+            <div class="col-lg-4">
+                <!-- Demo Credentials -->
+                <div class="card shadow mb-3">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-key me-2"></i>Demo Credentials
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="fw-bold">Provider PINs:</h6>
+                        <ul class="list-unstyled small">
+                            <li><code>1234</code> - Dr. Kwame Asante (General)</li>
+                            <li><code>5678</code> - Dr. Ama Mensah (Pediatrics)</li>
+                            <li><code>9012</code> - Dr. Kofi Boateng (Internal)</li>
+                        </ul>
+
+                        <h6 class="fw-bold mt-3">Test Phone Numbers:</h6>
+                        <ul class="list-unstyled small">
+                            <li><code>0200123456</code> - John Doe</li>
+                            <li><code>0240234567</code> - Jane Smith</li>
+                            <li><code>0260345678</code> - Kwame Osei</li>
+                            <li><code>0270456789</code> - Akosua Addo</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Quick Test Buttons -->
+                <div class="card shadow mb-3">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-zap me-2"></i>Quick Tests
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="fw-bold">Basic Navigation:</h6>
+                        <button class="btn btn-outline-primary btn-sm quick-test-btn" onclick="quickTest('')">Main Menu</button>
+                        <button class="btn btn-outline-primary btn-sm quick-test-btn" onclick="quickTest('1')">Provider Login</button>
+                        <button class="btn btn-outline-primary btn-sm quick-test-btn" onclick="quickTest('2')">Patient Services</button>
+                        <button class="btn btn-outline-primary btn-sm quick-test-btn" onclick="quickTest('3')">Emergency</button>
+                        <button class="btn btn-outline-primary btn-sm quick-test-btn" onclick="quickTest('4')">System Info</button>
+
+                        <h6 class="fw-bold mt-3">Provider Workflows:</h6>
+                        <button class="btn btn-outline-success btn-sm quick-test-btn" onclick="quickTest('1*1234')">Login (PIN 1234)</button>
+                        <button class="btn btn-outline-success btn-sm quick-test-btn" onclick="quickTest('1*1234*1')">Patient Lookup</button>
+                        <button class="btn btn-outline-success btn-sm quick-test-btn" onclick="quickTest('1*1234*2')">New Patient</button>
+                        <button class="btn btn-outline-success btn-sm quick-test-btn" onclick="quickTest('1*1234*3')">New Record</button>
+
+                        <h6 class="fw-bold mt-3">Patient Workflows:</h6>
+                        <button class="btn btn-outline-info btn-sm quick-test-btn" onclick="quickTest('2*1')">View Records</button>
+                        <button class="btn btn-outline-info btn-sm quick-test-btn" onclick="quickTest('2*2')">Emergency Contact</button>
+                        <button class="btn btn-outline-info btn-sm quick-test-btn" onclick="quickTest('2*3')">Appointments</button>
+
+                        <h6 class="fw-bold mt-3">Emergency:</h6>
+                        <button class="btn btn-outline-danger btn-sm quick-test-btn" onclick="quickTest('3*1')">Call Ambulance</button>
+                        <button class="btn btn-outline-danger btn-sm quick-test-btn" onclick="quickTest('3*3')">Emergency Info</button>
+                    </div>
+                </div>
+
+                <!-- Test Scenarios -->
+                <div class="card shadow">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="fas fa-clipboard-list me-2"></i>Test Scenarios
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="test-scenario">
+                            <strong>Scenario 1: Provider Journey</strong>
+                            <ol class="small mb-0">
+                                <li>Start with empty text (main menu)</li>
+                                <li>Select "1" (provider login)</li>
+                                <li>Enter "1*1234" (login with PIN)</li>
+                                <li>Try "1*1234*2" (new patient)</li>
+                            </ol>
+                        </div>
+
+                        <div class="test-scenario">
+                            <strong>Scenario 2: Patient Journey</strong>
+                            <ol class="small mb-0">
+                                <li>Use patient phone: 0200123456</li>
+                                <li>Select "2" (patient services)</li>
+                                <li>Try "2*1" (view records)</li>
+                                <li>Try "2*4" (update contact)</li>
+                            </ol>
+                        </div>
+
+                        <div class="test-scenario">
+                            <strong>Scenario 3: Emergency</strong>
+                            <ol class="small mb-0">
+                                <li>Select "3" (emergency services)</li>
+                                <li>Try "3*3" (share emergency info)</li>
+                                <li>Try "3*4" (nearest hospital)</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>How to Use This USSD Test Interface
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>USSD Input Format:</h6>
+                                <ul>
+                                    <li><strong>Empty</strong> - Main menu</li>
+                                    <li><strong>"1"</strong> - Healthcare Provider</li>
+                                    <li><strong>"1*1234"</strong> - Provider login with PIN</li>
+                                    <li><strong>"1*1234*2"</strong> - Provider → New Patient</li>
+                                    <li><strong>"2*1"</strong> - Patient → View Records</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Response Types:</h6>
+                                <ul>
+                                    <li><strong>CON</strong> - Continue (more input needed)</li>
+                                    <li><strong>END</strong> - End session (final response)</li>
+                                </ul>
+                                <h6>Tips:</h6>
+                                <ul>
+                                    <li>Use the quick test buttons for common scenarios</li>
+                                    <li>Change phone numbers to test different users</li>
+                                    <li>Monitor <a href="/logs" target="_blank">system logs</a> for detailed activity</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">
+                <strong>Afya Medical EHR</strong> - USSD Testing Interface
+            </p>
+            <div class="mt-2">
+                <a href="/" class="text-light me-3">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                </a>
+                <a href="/logs" class="text-light me-3" target="_blank">
+                    <i class="fas fa-list me-1"></i>View System Logs
+                </a>
+                <a href="/health" class="text-light" target="_blank">
+                    <i class="fas fa-heartbeat me-1"></i>System Health
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Generate timestamp for unique session IDs
+        const timestamp = Date.now();
+        
+        // Quick test function
+        function quickTest(text) {
+            document.getElementById('ussdText').value = text;
+            document.getElementById('ussdForm').submit();
+        }
+
+        // Clear session function
+        function clearSession() {
+            const newSessionId = 'test_session_' + Date.now();
+            document.getElementById('sessionId').value = newSessionId;
+            document.getElementById('currentSession').textContent = newSessionId;
+            document.getElementById('ussdText').value = '';
+            clearResponse();
+        }
+
+        // Clear response function
+        function clearResponse() {
+            document.getElementById('ussdResponse').innerHTML = 
+                '<div class="text-muted">No response yet. Send a USSD request to see the response here.</div>';
+        }
+
+        // Handle form submission
+        document.getElementById('ussdForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const responseDiv = document.getElementById('ussdResponse');
+            
+            // Show loading
+            responseDiv.innerHTML = '<div class="text-warning"><i class="fas fa-spinner fa-spin"></i> Sending USSD request...</div>';
+            
+            // Submit to USSD callback
+            fetch('/ussd/callback', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                // Format the response
+                let formattedResponse = data;
+                
+                // Add timestamp
+                const timestamp = new Date().toLocaleTimeString();
+                formattedResponse = `[${timestamp}] USSD Response:\n\n${formattedResponse}`;
+                
+                // Display response
+                responseDiv.innerHTML = `<pre style="margin: 0; white-space: pre-wrap;">${formattedResponse}</pre>`;
+                
+                // Add copy button
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'btn btn-sm btn-outline-light mt-2';
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Response';
+                copyBtn.onclick = function() {
+                    navigator.clipboard.writeText(data);
+                    this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => {
+                        this.innerHTML = '<i class="fas fa-copy"></i> Copy Response';
+                    }, 2000);
+                };
+                responseDiv.appendChild(copyBtn);
+            })
+            .catch(error => {
+                responseDiv.innerHTML = `<div class="text-danger">Error: ${error.message}</div>`;
+            });
+        });
+
+        // Auto-focus on USSD text input
+        document.getElementById('ussdText').focus();
+        
+        // Handle Enter key in USSD text input
+        document.getElementById('ussdText').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('ussdForm').submit();
+            }
+        });
+
+        // Replace timestamp placeholder
+        document.addEventListener('DOMContentLoaded', function() {
+            const timestampElements = document.querySelectorAll('[value*="timestamp"]');
+            timestampElements.forEach(el => {
+                el.value = el.value.replace('{{ timestamp }}', timestamp);
+            });
+        });
+    </script>
+</body>
+
+</html>
