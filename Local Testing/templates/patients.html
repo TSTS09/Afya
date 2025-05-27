@@ -7,79 +7,9 @@
     <title>Patients - Afya Medical EHR</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --afya-primary: #2E8B57;
-            --afya-secondary: #20B2AA;
-            --afya-accent: #FFD700;
-            --afya-dark: #1E1E1E;
-        }
-
-        .navbar-brand {
-            font-weight: bold;
-            color: var(--afya-primary) !important;
-        }
-
-        .card-custom {
-            border-left: 4px solid var(--afya-primary);
-            transition: transform 0.2s;
-        }
-
-        .card-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .page-header {
-            background: linear-gradient(135deg, rgba(46, 139, 87, 0.1), rgba(32, 178, 170, 0.1));
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .table-responsive {
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .btn-afya {
-            background: var(--afya-primary);
-            border-color: var(--afya-primary);
-            color: white;
-        }
-
-        .btn-afya:hover {
-            background: var(--afya-secondary);
-            border-color: var(--afya-secondary);
-            color: white;
-        }
-    </style>
 </head>
 
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-        <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-heartbeat me-2"></i>
-                Afya Medical EHR
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="navbar-nav ms-auto">
-                    <a class="nav-link" href="/"><i class="fas fa-tachometer-alt me-1"></i>Dashboard</a>
-                    <a class="nav-link active" href="/patients"><i class="fas fa-users me-1"></i>Patients</a>
-                    <a class="nav-link" href="/register-facility"><i class="fas fa-hospital me-1"></i>Register
-                        Facility</a>
-                    <a class="nav-link" href="/register-provider"><i class="fas fa-user-md me-1"></i>Register
-                        Provider</a>
-                    <a class="nav-link" href="/logs"><i class="fas fa-list me-1"></i>Logs</a>
-                </div>
-            </div>
-        </div>
-    </nav>
 
     <div class="container mt-4">
         <!-- Flash Messages -->
@@ -275,18 +205,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Footer -->
-    <footer class="bg-dark text-white text-center py-4 mt-5">
-        <div class="container">
-            <p class="mb-2">
-                <strong>Afya Medical EHR</strong> - Transforming Healthcare in Ghana
-            </p>
-            <p class="small text-muted mb-0">
-                © 2024 Afya Medical Systems. Built with ❤️ for better healthcare access.
-            </p>
-        </div>
-    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
