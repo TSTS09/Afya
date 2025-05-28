@@ -1,0 +1,40 @@
+{
+  "name": "afya-medical-web",
+  "version": "1.0.0",
+  "description": "Afya Medical EHR Web Dashboard",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "dev": "vue-cli-service serve --host 0.0.0.0 --port 8080"
+  },
+  "dependencies": {
+    "vue": "^3.3.0",
+    "vue-router": "^4.2.0",
+    "vuetify": "^3.4.0",
+    "axios": "^1.6.0",
+    "moment": "^2.29.4",
+    "@mdi/font": "^7.3.0",
+    "core-js": "^3.32.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/eslint-parser": "^7.23.0",
+    "@vue/cli-plugin-babel": "^5.0.8",
+    "@vue/cli-plugin-eslint": "^5.0.8",
+    "@vue/cli-plugin-router": "^5.0.8",
+    "@vue/cli-service": "^5.0.8",
+    "eslint": "^8.52.0",
+    "eslint-plugin-vue": "^9.18.0",
+    "sass": "^1.69.0",
+    "sass-loader": "^13.3.0",
+    "vite-plugin-vuetify": "^1.0.2"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
+}
