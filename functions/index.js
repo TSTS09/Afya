@@ -1335,5 +1335,3 @@ DEPLOYMENT:
 WEBHOOK URL (after deployment):
 https://us-central1-YOUR-PROJECT-ID.cloudfunctions.net/api/ussd/callback
 */
-
-// End of file - All functions exported above
