@@ -1,0 +1,240 @@
+// Afya Medical EHR - SCSS Variables
+// Color palette and design tokens
+
+// ============================================
+// Primary Colors (Ghana Health Theme)
+// ============================================
+$afya-primary: #2E8B57;      // Sea Green - Healthcare/nature theme
+$afya-secondary: #20B2AA;    // Light Sea Green  
+$afya-accent: #FFD700;       // Gold
+$afya-dark: #1E1E1E;         // Dark Gray
+$afya-light: #F8F9FA;        // Light Gray
+
+// ============================================
+// Semantic Colors
+// ============================================
+$success: #4CAF50;           // Green
+$warning: #FF9800;           // Orange  
+$error: #F44336;             // Red
+$info: #2196F3;              // Blue
+
+// ============================================
+// Text Colors
+// ============================================
+$text-primary: #212121;      // Primary text
+$text-secondary: #757575;    // Secondary text
+$text-disabled: #BDBDBD;     // Disabled text
+$text-hint: #9E9E9E;         // Hint text
+
+// ============================================
+// Background Colors
+// ============================================
+$background-primary: #FFFFFF;    // White background
+$background-secondary: #F5F5F5;  // Light gray background
+$background-dark: #303030;       // Dark background
+
+// ============================================
+// Border and Divider Colors
+// ============================================
+$border-color: #E0E0E0;      // Default border
+$divider-color: #E0E0E0;     // Divider lines
+
+// ============================================
+// Typography
+// ============================================
+$font-family-primary: 'Roboto', sans-serif;
+$font-family-mono: 'Roboto Mono', monospace;
+
+// Font sizes
+$font-size-xs: 0.75rem;      // 12px
+$font-size-sm: 0.875rem;     // 14px  
+$font-size-base: 1rem;       // 16px
+$font-size-lg: 1.125rem;     // 18px
+$font-size-xl: 1.25rem;      // 20px
+$font-size-2xl: 1.5rem;      // 24px
+$font-size-3xl: 1.875rem;    // 30px
+$font-size-4xl: 2.25rem;     // 36px
+
+// Font weights
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Line heights
+$line-height-tight: 1.25;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.75;
+
+// ============================================
+// Spacing Scale
+// ============================================
+$spacing-xs: 0.25rem;        // 4px
+$spacing-sm: 0.5rem;         // 8px
+$spacing-md: 1rem;           // 16px
+$spacing-lg: 1.5rem;         // 24px
+$spacing-xl: 2rem;           // 32px
+$spacing-2xl: 3rem;          // 48px
+$spacing-3xl: 4rem;          // 64px
+
+// ============================================
+// Component Specific
+// ============================================
+
+// Cards
+$card-border-radius: 8px;
+$card-elevation: 0 2px 4px rgba(0, 0, 0, 0.1);
+$card-padding: $spacing-lg;
+
+// Buttons
+$button-border-radius: 6px;
+$button-padding-y: 0.75rem;
+$button-padding-x: 1.5rem;
+
+// Forms
+$input-border-radius: 6px;
+$input-padding-y: 0.75rem;
+$input-padding-x: 1rem;
+$input-border-color: $border-color;
+$input-focus-border-color: $afya-primary;
+
+// Tables
+$table-border-color: $border-color;
+$table-row-hover-bg: rgba($afya-primary, 0.05);
+
+// Navigation
+$navbar-height: 64px;
+$sidebar-width: 280px;
+
+// ============================================
+// Responsive Breakpoints
+// ============================================
+$breakpoint-xs: 0px;
+$breakpoint-sm: 600px;
+$breakpoint-md: 960px;
+$breakpoint-lg: 1264px;
+$breakpoint-xl: 1904px;
+
+// ============================================
+// Z-Index Scale
+// ============================================
+$z-dropdown: 1000;
+$z-sticky: 1020;
+$z-fixed: 1030;
+$z-modal-backdrop: 1040;
+$z-modal: 1050;
+$z-popover: 1060;
+$z-tooltip: 1070;
+
+// ============================================
+// Animation & Transitions
+// ============================================
+$transition-fast: 0.15s ease-in-out;
+$transition-base: 0.3s ease-in-out;
+$transition-slow: 0.6s ease-in-out;
+
+// ============================================
+// Shadows
+// ============================================
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+$shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+
+// ============================================
+// Medical/Healthcare Specific Colors
+// ============================================
+$medical-emergency: #DC143C;     // Crimson
+$medical-warning: #FF8C00;       // Dark Orange
+$medical-stable: #32CD32;        // Lime Green
+$medical-critical: #B22222;      // Fire Brick
+
+// Blood type colors
+$blood-o: #FF6B6B;              // Red
+$blood-a: #4ECDC4;              // Teal
+$blood-b: #45B7D1;              // Blue
+$blood-ab: #96CEB4;             // Green
+
+// Specialty colors
+$specialty-general: $afya-primary;
+$specialty-pediatrics: #FF69B4;   // Hot Pink
+$specialty-cardiology: #FF4500;   // Orange Red
+$specialty-surgery: #8B0000;      // Dark Red
+$specialty-pharmacy: #32CD32;     // Lime Green
+
+// ============================================
+// USSD/Mobile Specific
+// ============================================
+$ussd-bg: #000000;              // Black background
+$ussd-text: #00FF00;            // Green text (classic terminal)
+$ussd-highlight: #FFFF00;       // Yellow highlight
+
+// Phone number formatting
+$phone-number-color: $afya-primary;
+$phone-number-bg: rgba($afya-primary, 0.1);
+
+// ============================================
+// Utility Classes (for use in components)
+// ============================================
+
+// Text utilities
+.text-primary { color: $afya-primary !important; }
+.text-secondary { color: $afya-secondary !important; }
+.text-success { color: $success !important; }
+.text-warning { color: $warning !important; }
+.text-error { color: $error !important; }
+.text-info { color: $info !important; }
+
+// Background utilities
+.bg-primary { background-color: $afya-primary !important; }
+.bg-secondary { background-color: $afya-secondary !important; }
+.bg-light { background-color: $afya-light !important; }
+
+// Spacing utilities (generated programmatically in Vue/Vuetify)
+@for $i from 0 through 12 {
+  .ma-#{$i} { margin: #{$i * 0.25}rem !important; }
+  .pa-#{$i} { padding: #{$i * 0.25}rem !important; }
+  .mt-#{$i} { margin-top: #{$i * 0.25}rem !important; }
+  .mb-#{$i} { margin-bottom: #{$i * 0.25}rem !important; }
+  .pt-#{$i} { padding-top: #{$i * 0.25}rem !important; }
+  .pb-#{$i} { padding-bottom: #{$i * 0.25}rem !important; }
+}
+
+// ============================================
+// Animation Keyframes
+// ============================================
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+// ============================================
+// Print Styles
+// ============================================
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  
+  body {
+    font-size: 12pt;
+    line-height: 1.4;
+    color: black;
+    background: white;
+  }
+}
