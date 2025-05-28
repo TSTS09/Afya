@@ -1,6 +1,39 @@
 {
+  "name": "afya-medical-ehr",
+  "version": "1.0.0",
+  "description": "Afya Medical EHR - Ghana Healthcare Electronic Records System",
+  "scripts": {
+    "dev": "firebase emulators:start",
+    "build": "cd public && npm run build",
+    "deploy": "firebase deploy",
+    "deploy:functions": "firebase deploy --only functions",
+    "deploy:hosting": "firebase deploy --only hosting",
+    "deploy:firestore": "firebase deploy --only firestore",
+    "setup": "npm install && cd functions && npm install && cd ../public && npm install",
+    "quick-start": "node -e \"console.log('Use quick-start.ps1 on Windows or quick-start.sh on Unix')\"",
+    "logs": "firebase functions:log",
+    "test": "cd functions && npm test"
+  },
   "dependencies": {
     "body-parser": "^2.2.0",
     "express": "^5.1.0"
-  }
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/afya-medical-ehr.git"
+  },
+  "keywords": [
+    "healthcare",
+    "medical-records",
+    "ghana",
+    "ussd",
+    "ehr",
+    "firebase"
+  ],
+  "author": "Afya Medical Systems",
+  "license": "MIT"
 }
