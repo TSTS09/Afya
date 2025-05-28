@@ -72,7 +72,7 @@ install_dependencies() {
     
     # Web dependencies
     print_status "Installing web dependencies..."
-    cd web
+    cd public
     npm install
     cd ..
     
@@ -82,7 +82,7 @@ install_dependencies() {
 # Build web application
 build_web() {
     print_status "Building web application..."
-    cd web
+    cd public
     
     # Set production environment
     export NODE_ENV=production

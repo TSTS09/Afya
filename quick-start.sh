@@ -83,8 +83,8 @@ setup_project_structure() {
     
     # Create directories if they don't exist
     mkdir -p functions
-    mkdir -p web/src/{views,components,services,router}
-    mkdir -p web/public
+    mkdir -p public/src/{views,components,services,router}
+    mkdir -p public/public
     
     print_success "Project structure created"
 }
@@ -114,13 +114,13 @@ install_dependencies() {
     
     # Web dependencies
     print_status "Installing web dependencies..."
-    if [ -f "web/package.json" ]; then
-        cd web
+    if [ -f "public/package.json" ]; then
+        cd public
         npm install
         cd ..
         print_success "Web dependencies installed"
     else
-        print_warning "No web/package.json found"
+        print_warning "No public/package.json found"
     fi
 }
 
@@ -154,16 +154,16 @@ EOF
     fi
     
     # Web environment
-    if [ ! -f "web/.env.local" ]; then
-        print_status "Creating web/.env.local..."
-        cat > web/.env.local << EOF
+    if [ ! -f "public/.env.local" ]; then
+        print_status "Creating public/.env.local..."
+        cat > public/.env.local << EOF
 # Vue.js Configuration
 VUE_APP_API_BASE_URL=http://localhost:5001/your-project-id/us-central1/api
 VUE_APP_FIREBASE_PROJECT_ID=your-firebase-project-id
 EOF
-        print_warning "Created web/.env.local - please update with your project ID"
+        print_warning "Created public/.env.local - please update with your project ID"
     else
-        print_status "web/.env.local already exists"
+        print_status "public/.env.local already exists"
     fi
 }
 
@@ -179,7 +179,7 @@ initialize_firebase() {
         echo "   - Select: Functions, Firestore, Hosting"
         echo "   - Choose your Firebase project"
         echo "   - Set functions source to 'functions'"
-        echo "   - Set hosting public directory to 'web/dist'"
+        echo "   - Set hosting public directory to 'public/dist'"
         echo ""
         print_warning "Then run this script again"
         exit 1
@@ -192,8 +192,8 @@ initialize_firebase() {
 build_web() {
     print_step "Building web application..."
     
-    if [ -f "web/package.json" ]; then
-        cd web
+    if [ -f "public/package.json" ]; then
+        cd public
         print_status "Building Vue.js application..."
         npm run build
         cd ..
@@ -267,7 +267,7 @@ show_info() {
     echo ""
     echo "⚠️  Important:"
     echo "   1. Update functions/.env with your actual API keys"
-    echo "   2. Update web/.env.local with your Firebase project ID"
+    echo "   2. Update public/.env.local with your Firebase project ID"
     echo "   3. Configure Africa's Talking webhook when deploying"
     echo ""
 }
@@ -297,7 +297,7 @@ main() {
     case $choice in
         1)
             print_status "Starting development environment..."
-            if [ -f "web/package.json" ]; then
+            if [ -f "public/package.json" ]; then
                 build_web
             fi
             show_info
@@ -305,7 +305,7 @@ main() {
             ;;
         2)
             print_status "Building and deploying..."
-            if [ -f "web/package.json" ]; then
+            if [ -f "public/package.json" ]; then
                 build_web
             fi
             firebase deploy
