@@ -226,7 +226,7 @@
                 <router-link to="/providers/register">Register healthcare providers</router-link>
               </v-timeline-item>
               <v-timeline-item dot-color="primary" size="small">
-                Start using USSD system: <strong>*714#</strong>
+                Start using USSD system: <strong>*384*15897#</strong>
               </v-timeline-item>
               <v-timeline-item dot-color="primary" size="small">
                 Begin registering patients and creating records

@@ -323,7 +323,7 @@ Enter choice:`;
       return 'END Afya Medical EHR\n\nGhana\'s digital healthcare records system. Transforming healthcare access through mobile technology.\n\nVisit: afya.gov.gh';
     
     case '2':
-      return 'END How to Use:\n\n1. Healthcare providers dial *714#\n2. Enter PIN to access\n3. Patients can view records\n4. Emergency services available 24/7\n\nFor help: support@afya.gov.gh';
+      return 'END How to Use:\n\n1. Healthcare providers dial *384*15897#\n2. Enter PIN to access\n3. Patients can view records\n4. Emergency services available 24/7\n\nFor help: support@afya.gov.gh';
     
     case '3':
       return 'END Privacy Policy:\n\nYour health data is protected by encryption and access controls. Only authorized providers can view records.\n\nFull policy: afya.gov.gh/privacy';
@@ -1271,7 +1271,7 @@ async function sendSMS(phoneNumber, message) {
  * @param {string} patientName - Patient name
  */
 async function sendWelcomeSMS(phoneNumber, patientName) {
-  const message = `Welcome to Afya Medical EHR, ${patientName}! Your medical records are now digitally secured. Dial *714# anytime to access your health information.`;
+  const message = `Welcome to Afya Medical EHR, ${patientName}! Your medical records are now digitally secured. Dial *384*15897# anytime to access your health information.`;
   await sendSMS(phoneNumber, message);
 }
 

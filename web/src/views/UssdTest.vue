@@ -37,7 +37,7 @@
               <v-col cols="6">
                 <v-text-field
                   label="Service Code"
-                  value="*714#"
+                  value="*384*15897#"
                   readonly
                   density="compact"
                   variant="outlined"
@@ -404,7 +404,7 @@ export default {
         
         const ussdData = {
           sessionId: sessionId.value,
-          serviceCode: '*714#',
+          serviceCode: '*384*15897#',
           phoneNumber: phoneNumber.value,
           text: ussdText.value || ''
         }

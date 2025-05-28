@@ -42,7 +42,7 @@ class MedicalMenu {
       const session = await sessionManager.getSession(sessionId);
       
       if (!session || !session.provider) {
-        return 'END Session expired. Please dial *714# again.';
+        return 'END Session expired. Please dial *384*15897# again.';
       }
 
       const parts = text.split('*');
@@ -296,7 +296,7 @@ Enter choice:`;
           }
 
         default:
-          return 'END Session error. Please dial *714# again.';
+          return 'END Session error. Please dial *384*15897# again.';
       }
     } catch (error) {
       logger.error('Error handling new patient:', error);
@@ -456,7 +456,7 @@ Thank you for using Afya Medical EHR.`;
             } catch (error) {
               return `END Failed to save record: ${error.message}
 
-Please try again by dialing *714#.`;
+Please try again by dialing *384*15897#.`;
             }
           } else if (input === '2') {
             return 'CON Edit options:\n\n1. Chief complaint\n2. Diagnosis\n3. Treatment\n4. Prescription\n\nEnter choice:';
@@ -472,7 +472,7 @@ Please try again by dialing *714#.`;
           }
 
         default:
-          return 'END Session error. Please dial *714# again.';
+          return 'END Session error. Please dial *384*15897# again.';
       }
     } catch (error) {
       logger.error('Error handling medical record:', error);
@@ -560,7 +560,7 @@ Enter chief complaint:`;
       const choice = parts[parts.length - 1];
 
       if (!session.search_results || session.search_results.length === 0) {
-        return 'END Session expired. Please dial *714# again.';
+        return 'END Session expired. Please dial *384*15897# again.';
       }
 
       if (choice === '9') {
@@ -687,7 +687,7 @@ Enter choice:`;
       const session = await sessionManager.getSession(sessionId);
       
       if (!session || !session.provider) {
-        return 'END Session expired. Please dial *714# again.';
+        return 'END Session expired. Please dial *384*15897# again.';
       }
 
       // Route based on current menu step

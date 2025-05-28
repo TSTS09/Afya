@@ -209,7 +209,7 @@
                 Then, <router-link to="/providers/register">register healthcare providers</router-link>
               </v-timeline-item>
               <v-timeline-item dot-color="primary" size="small">
-                Providers can access the system via USSD: <strong>*714#</strong>
+                Providers can access the system via USSD: <strong>*384*15897#</strong>
               </v-timeline-item>
             </v-timeline>
           </v-card-text>
@@ -336,7 +336,7 @@
             </div>
             <v-timeline density="compact">
               <v-timeline-item dot-color="primary" size="small">
-                Dial <strong>*714#</strong> from registered phone
+                Dial <strong>*384*15897#</strong> from registered phone
               </v-timeline-item>
               <v-timeline-item dot-color="primary" size="small">
                 Select <strong>"1"</strong> for Healthcare Provider

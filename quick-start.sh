@@ -250,7 +250,7 @@ show_info() {
     echo ""
     echo "📱 USSD Testing:"
     echo "   Local Test: http://localhost:5000/ussd-test"
-    echo "   USSD Code: *714# (configure in Africa's Talking)"
+    echo "   USSD Code: *384*15897# (configure in Africa's Talking)"
     echo ""
     echo "🌐 Web Dashboard:"
     echo "   Local: http://localhost:5000"

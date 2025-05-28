@@ -95,7 +95,7 @@
               USSD Access Available
             </template>
             
-            For basic phone access without internet, dial <strong>*714#</strong> from any mobile phone in Ghana.
+            For basic phone access without internet, dial <strong>*384*15897#</strong> from any mobile phone in Ghana.
           </v-alert>
         </v-col>
       </v-row>

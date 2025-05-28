@@ -15,7 +15,7 @@
           <v-card-text class="text-center py-6">
             <div class="text-h6 text-white mb-3">USSD Access Code</div>
             <div class="ussd-code text-h4 text-amber" @click="copyUssdCode">
-              *714#
+              *384*15897#
             </div>
             <div class="text-caption text-grey-lighten-2 mt-3">
               Dial from any mobile phone - No internet required
@@ -184,7 +184,7 @@
                 <strong>Register your facility and get provider credentials</strong>
               </v-timeline-item>
               <v-timeline-item dot-color="primary" size="small">
-                <strong>Dial *714#</strong> from any mobile phone
+                <strong>Dial *384*15897#</strong> from any mobile phone
               </v-timeline-item>
               <v-timeline-item dot-color="primary" size="small">
                 <strong>Select "Healthcare Provider"</strong> and enter your PIN
@@ -205,7 +205,7 @@
                 <strong>Get registered at any participating healthcare facility</strong>
               </v-timeline-item>
               <v-timeline-item dot-color="success" size="small">
-                <strong>Dial *714#</strong> from your registered phone
+                <strong>Dial *384*15897#</strong> from your registered phone
               </v-timeline-item>
               <v-timeline-item dot-color="success" size="small">
                 <strong>Select "Patient Services"</strong> to view your records
@@ -310,7 +310,7 @@ export default {
 
     const copyUssdCode = async () => {
       try {
-        await navigator.clipboard.writeText('*714#')
+        await navigator.clipboard.writeText('*384*15897#')
         emit('alert', {
           type: 'success',
           title: 'Success',

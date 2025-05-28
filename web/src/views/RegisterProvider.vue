@@ -193,7 +193,7 @@
             
             <v-timeline density="compact">
               <v-timeline-item dot-color="primary" size="small">
-                <strong>Dial *714#</strong> from your registered phone number
+                <strong>Dial *384*15897#</strong> from your registered phone number
               </v-timeline-item>
               <v-timeline-item dot-color="primary" size="small">
                 <strong>Select "1"</strong> for Healthcare Provider
@@ -266,7 +266,7 @@
           </v-alert>
           
           <div class="text-body-2 mt-4">
-            The provider can now access the USSD system by dialing <strong>*714#</strong>
+            The provider can now access the USSD system by dialing <strong>*384*15897#</strong>
           </div>
         </v-card-text>
         

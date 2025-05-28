@@ -170,7 +170,7 @@
             <v-card-text>
               <v-timeline density="compact">
                 <v-timeline-item dot-color="primary" size="small">
-                  <strong>Dial *714#</strong> from your phone
+                  <strong>Dial *384*15897#</strong> from your phone
                 </v-timeline-item>
                 <v-timeline-item dot-color="primary" size="small">
                   Select <strong>"1"</strong> for Healthcare Provider
@@ -301,7 +301,7 @@
                   <div>USSD Registration</div>
                 </v-card-title>
                 <v-card-text class="text-center">
-                  <div class="ussd-code mb-4">*714#</div>
+                  <div class="ussd-code mb-4">*384*15897#</div>
                   <div class="text-body-2">
                     Works on any mobile phone - No internet required
                   </div>

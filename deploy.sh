@@ -184,7 +184,7 @@ show_deployment_info() {
     echo ""
     echo "📋 Next Steps:"
     echo "   1. Configure Africa's Talking USSD webhook"
-    echo "   2. Test USSD functionality: Dial *714# (or your configured code)"
+    echo "   2. Test USSD functionality: Dial *384*15897# (or your configured code)"
     echo "   3. Access web dashboard to manage the system"
     echo "   4. Monitor logs for any issues"
     echo ""
