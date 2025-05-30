@@ -40,6 +40,7 @@ function appInit() {
         `;
         } else if (text === '1') {
             account = createRec();
+            response = `END Account created successfully. Your account number is ${account}`;
         } else if (text === ('2')) {
             account = updateRec();
         } else if (text === ('3')) {
@@ -82,7 +83,22 @@ function createRec() {
     return response;
 }
 function updateRec() {
-
+    db.collection('afya')
+        .doc('document-id') // Document ID from firbase collection
+        .set({
+            name: 'Jane Doe',
+            age: 25,
+            condition: 'Healthy',
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(() => {
+            console.log('Document successfully updated!');
+            response = `END Record updated successfully.`;
+        })
+        .catch(error => {
+            console.error('Error updating document: ', error);
+            response = `END Error updating record.`;
+        });
 }
 function deleteRec() {
 
