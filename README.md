@@ -7,7 +7,7 @@ Afya Medical EHR is an Electronic Health Records system designed for Ghana's hea
 ## 🌟 Key Features
 
 ### 📱 Universal Access
-- **USSD Interface**: Works on any mobile phone - dial `*714#`
+- **USSD Interface**: Works on any mobile phone - dial `*384*15897#`
 - **Web Dashboard**: Modern Vue.js interface for administration
 - **No Internet Required**: USSD works on basic feature phones
 - **Ghana-Optimized**: Built for local networks and infrastructure
@@ -128,7 +128,7 @@ deploy.cmd            # Windows Command Prompt
 ### Africa's Talking Setup
 1. Login to your Africa's Talking account
 2. Go to USSD services
-3. Create new USSD code (e.g., `*714#`)
+3. Create new USSD code (e.g., `*384*15897#`)
 4. Set webhook URL: `https://us-central1-YOUR-PROJECT-ID.cloudfunctions.net/api/ussd/callback`
 
 ### Testing USSD
@@ -139,7 +139,7 @@ deploy.cmd            # Windows Command Prompt
 
 ### For Healthcare Providers
 1. **Get Registered**: Admin registers your facility and creates your account
-2. **Access USSD**: Dial `*714#` → Select "Healthcare Provider" → Enter PIN
+2. **Access USSD**: Dial `*384*15897#` → Select "Healthcare Provider" → Enter PIN
 3. **Workflows**:
    - Patient lookup by phone/name
    - Register new patients
@@ -148,8 +148,8 @@ deploy.cmd            # Windows Command Prompt
 
 ### For Patients  
 1. **Get Registered**: Visit any participating healthcare facility
-2. **Access Records**: Dial `*714#` → Select "Patient Services"
-3. **Emergency**: Dial `*714#` → Select "Emergency Services"
+2. **Access Records**: Dial `*384*15897#` → Select "Patient Services"
+3. **Emergency**: Dial `*384*15897#` → Select "Emergency Services"
 
 ### For Administrators
 1. **Web Dashboard**: Access at your Firebase hosting URL

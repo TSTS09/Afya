@@ -214,7 +214,7 @@
                     <template v-slot:prepend>
                       <v-icon color="success">mdi-check</v-icon>
                     </template>
-                    <v-list-item-title>Start using the USSD system by dialing <strong>*714#</strong></v-list-item-title>
+                    <v-list-item-title>Start using the USSD system by dialing <strong>*384*15897#</strong></v-list-item-title>
                   </v-list-item>
                 </v-list>
               </v-col>
