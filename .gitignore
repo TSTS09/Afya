@@ -213,3 +213,4 @@ Thumbs.db
 # Temporary folders
 tmp/
 temp/
+venv/
