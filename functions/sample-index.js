@@ -1,3 +1,4 @@
+// Sample Ussd function implementation using Firebase Functions and Firestore in the index.js file 
 const functions = require('firebase-functions');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -43,10 +44,13 @@ function appInit() {
             response = `END Account created successfully. Your account number is ${account}`;
         } else if (text === ('2')) {
             account = updateRec();
+            response = `END Record updated successfully.`;
         } else if (text === ('3')) {
             account = readRec();
+            response = `END Record retrieved successfully. ${account}`;
         } else if (text === ('4')) {
             account = deleteRec();
+            response = `END Record deleted successfully.`;
         } else if (text === '1*1') {
             // View patient records
             const accountNumber = '1234567890'; // This should be fetched from the database
@@ -101,8 +105,37 @@ function updateRec() {
         });
 }
 function deleteRec() {
-
+    db.collection('afya')
+        .doc('document-id') // Document ID from firbase collection
+        .delete()
+        .then(() => {
+            console.log('Document successfully deleted!');
+            response = `END Record deleted successfully.`;
+        })
+        .catch(error => {
+            console.error('Error removing document: ', error);
+            response = `END Error deleting record.`;
+        });
 }
 function readRec() {
+    db.collection('afya')
+        .doc('document-id') // Document ID from firebase collection
+        .get()
+        .then(snapshot => {
+            if (snapshot.empty) {
+                console.log('No matching documents.');
+                response = `END No records found.`;
+                return;
+            }
+            snapshot.forEach(doc => {
+                console.log(doc.id, '=>', doc.data());
+                response += `END Record: ${doc.id} - ${JSON.stringify(doc.data())}\n`;
+            });
+        })
+        .catch(error => {
+            console.error('Error getting documents: ', error);
+            response = `END Error retrieving records.`;
+        });
+    return response;
 
 }
