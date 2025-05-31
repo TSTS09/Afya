@@ -11,7 +11,7 @@ class DataManager {
     this.db = getFirestore();
     this.collections = {
       facilities: 'facilities',
-      providers: 'providers', 
+      providers: 'providers',
       patients: 'patients',
       medical_records: 'medical_records',
       system_logs: 'system_logs',
@@ -39,9 +39,9 @@ class DataManager {
    */
   validateGhanaPhone(phone) {
     if (!phone) return { valid: false, message: 'Phone number required' };
-    
+
     const cleaned = phone.replace(/[\s-]/g, '');
-    
+
     if (cleaned.startsWith('0') && cleaned.length === 10) {
       return { valid: true, phone: cleaned };
     } else if (cleaned.startsWith('+233') && cleaned.length === 13) {
@@ -64,7 +64,7 @@ class DataManager {
         timestamp: FieldValue.serverTimestamp(),
         id: this.generateId('log_')
       };
-      
+
       await this.db.collection(this.collections.system_logs).add(logEntry);
     } catch (error) {
       logger.error('Failed to log activity:', error);
@@ -139,13 +139,29 @@ class DataManager {
   async getFacilities() {
     try {
       const snapshot = await this.db.collection(this.collections.facilities)
+        .where('is_active', '!=', null) // Only get real records
+        .orderBy('is_active', 'desc')
         .orderBy('registration_date', 'desc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const facilities = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        // Only include records with valid data
+        if (data.name && data.name.trim() && data.facility_type) {
+          facilities.push({
+            id: doc.id,
+            ...data,
+            // Convert Firestore timestamps to readable format
+            registration_date: data.registration_date?.toDate?.()?.toISOString() || data.registration_date
+          });
+        }
+      });
+
+      return facilities;
     } catch (error) {
       logger.error('Error getting facilities:', error);
-      throw error;
+      return []; // Return empty array instead of throwing
     }
   }
 
@@ -157,7 +173,7 @@ class DataManager {
   async getFacility(facilityId) {
     try {
       const doc = await this.db.collection(this.collections.facilities).doc(facilityId).get();
-      
+
       if (!doc.exists) {
         throw new Error('Facility not found');
       }
@@ -290,18 +306,31 @@ class DataManager {
   async getProviders() {
     try {
       const snapshot = await this.db.collection(this.collections.providers)
+        .where('is_active', '!=', null) // Only get real records
+        .orderBy('is_active', 'desc')
         .orderBy('registration_date', 'desc')
         .get();
 
-      return snapshot.docs.map(doc => {
+      const providers = [];
+      snapshot.forEach(doc => {
         const data = doc.data();
-        // Don't expose PIN in listings
-        const { pin, ...providerData } = data;
-        return { id: doc.id, ...providerData };
+        // Only include records with valid data
+        if (data.name && data.name.trim() && data.phone) {
+          // Don't expose PIN in listings
+          const { pin, ...providerData } = data;
+          providers.push({
+            id: doc.id,
+            ...providerData,
+            // Convert Firestore timestamps
+            registration_date: data.registration_date?.toDate?.()?.toISOString() || data.registration_date
+          });
+        }
       });
+
+      return providers;
     } catch (error) {
       logger.error('Error getting providers:', error);
-      throw error;
+      return []; // Return empty array instead of throwing
     }
   }
 
@@ -330,7 +359,7 @@ class DataManager {
 
       const provider = snapshot.docs[0];
       const providerData = { id: provider.id, ...provider.data() };
-      
+
       // Don't return PIN
       delete providerData.pin;
 
@@ -349,7 +378,7 @@ class DataManager {
   async resetProviderPin(providerId) {
     try {
       const newPin = Math.floor(1000 + Math.random() * 9000).toString();
-      
+
       await this.db.collection(this.collections.providers).doc(providerId).update({
         pin: newPin,
         updated_at: FieldValue.serverTimestamp()
@@ -475,13 +504,30 @@ class DataManager {
   async getPatients() {
     try {
       const snapshot = await this.db.collection(this.collections.patients)
+        .where('is_active', '!=', null) // Only get real records
+        .orderBy('is_active', 'desc')
         .orderBy('registration_date', 'desc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const patients = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        // Only include records with valid data
+        if (data.name && data.name.trim() && data.phone) {
+          patients.push({
+            id: doc.id,
+            ...data,
+            // Convert Firestore timestamps
+            registration_date: data.registration_date?.toDate?.()?.toISOString() || data.registration_date,
+            last_visit: data.last_visit?.toDate?.()?.toISOString() || data.last_visit
+          });
+        }
+      });
+
+      return patients;
     } catch (error) {
       logger.error('Error getting patients:', error);
-      throw error;
+      return []; // Return empty array instead of throwing
     }
   }
 
@@ -523,7 +569,7 @@ class DataManager {
       const patients = await this.getPatients();
       const searchTerm = query.toLowerCase();
 
-      return patients.filter(patient => 
+      return patients.filter(patient =>
         patient.name?.toLowerCase().includes(searchTerm) ||
         patient.phone?.includes(searchTerm) ||
         patient.id?.toLowerCase().includes(searchTerm)
@@ -757,6 +803,63 @@ class DataManager {
     } catch (error) {
       logger.error('Error deleting USSD session:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Clean up invalid records
+   */
+  async cleanupInvalidRecords() {
+    try {
+      let cleaned = 0;
+
+      // Clean facilities
+      const facilitiesSnapshot = await this.db.collection(this.collections.facilities).get();
+      const batch1 = this.db.batch();
+      
+      facilitiesSnapshot.forEach(doc => {
+        const data = doc.data();
+        if (!data.name || !data.name.toString().trim() || !data.facility_type) {
+          batch1.delete(doc.ref);
+          cleaned++;
+        }
+      });
+      
+      if (cleaned > 0) await batch1.commit();
+
+      // Clean providers
+      const providersSnapshot = await this.db.collection(this.collections.providers).get();
+      const batch2 = this.db.batch();
+      
+      providersSnapshot.forEach(doc => {
+        const data = doc.data();
+        if (!data.name || !data.name.toString().trim() || !data.phone) {
+          batch2.delete(doc.ref);
+          cleaned++;
+        }
+      });
+      
+      if (cleaned > 0) await batch2.commit();
+
+      // Clean patients
+      const patientsSnapshot = await this.db.collection(this.collections.patients).get();
+      const batch3 = this.db.batch();
+      
+      patientsSnapshot.forEach(doc => {
+        const data = doc.data();
+        if (!data.name || !data.name.toString().trim() || !data.phone) {
+          batch3.delete(doc.ref);
+          cleaned++;
+        }
+      });
+      
+      if (cleaned > 0) await batch3.commit();
+
+      logger.info(`Cleaned up ${cleaned} invalid records`);
+      return cleaned;
+    } catch (error) {
+      logger.error('Error cleaning up records:', error);
+      return 0;
     }
   }
 }
