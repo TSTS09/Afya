@@ -1310,6 +1310,71 @@ async function checkRateLimit(identifier, maxRequests = 60, windowMs = 60000) {
   return true;
 }
 
+// ============== DATABASE CLEANUP ENDPOINTS ==============
+
+/**
+ * Cleanup invalid records endpoint
+ */
+app.post('/admin/cleanup', async (req, res) => {
+  try {
+    const authKey = req.headers['x-admin-key'];
+    if (authKey !== 'afya-cleanup-2025') {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    functions.logger.info('Starting database cleanup...');
+    
+    const cleaned = await dataManager.cleanupInvalidRecords();
+    
+    res.json({ 
+      success: true, 
+      message: `Cleaned up ${cleaned} invalid records`,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    functions.logger.error('Cleanup error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * System health check with detailed information
+ */
+app.get('/admin/health', async (req, res) => {
+  try {
+    const stats = await dataManager.getDashboardStats();
+    
+    const facilities = await dataManager.getFacilities();
+    const providers = await dataManager.getProviders();
+    const patients = await dataManager.getPatients();
+    
+    const health = {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+      database: {
+        total_facilities: facilities.length,
+        total_providers: providers.length,
+        total_patients: patients.length
+      },
+      services: {
+        database: 'connected',
+        functions: 'running',
+        ussd: 'available'
+      }
+    };
+
+    res.json(health);
+  } catch (error) {
+    res.status(500).json({
+      status: 'unhealthy',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // ============== EXPORTS SUMMARY ==============
 
 /*
