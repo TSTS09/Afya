@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: process.env.NODE_ENV === 'production' 
+  baseURL: process.env.NODE_ENV === 'production'
     ? '/api'  // In production, requests go through Firebase Hosting rewrites
     : 'http://localhost:5001/your-project-id/us-central1/api', // Development - update with your project ID
   timeout: 30000,
@@ -30,7 +30,7 @@ api.interceptors.response.use(
   },
   (error) => {
     console.error('Response error:', error)
-    
+
     // Handle different error types
     if (error.response) {
       // Server responded with error status
@@ -48,23 +48,50 @@ api.interceptors.response.use(
 
 class ApiService {
   // ============== DASHBOARD ==============
-  
+
   /**
-   * Get dashboard statistics
-   * @returns {Promise<Object>} Dashboard stats
-   */
+  * Get dashboard statistics - FIXED VERSION
+  * @returns {Promise<Object>} Dashboard stats
+  */
   async getDashboardStats() {
-    return await api.get('/dashboard/stats')
+    try {
+      const response = await api.get('/dashboard/stats')
+      // Ensure recent_records is always an array
+      if (response && !Array.isArray(response.recent_records)) {
+        response.recent_records = []
+      }
+      return response || {
+        total_facilities: 0,
+        total_providers: 0,
+        total_patients: 0,
+        recent_records: []
+      }
+    } catch (error) {
+      console.error('Failed to get dashboard stats:', error)
+      return {
+        total_facilities: 0,
+        total_providers: 0,
+        total_patients: 0,
+        recent_records: []
+      }
+    }
   }
 
   // ============== FACILITIES ==============
-  
+
   /**
-   * Get all facilities
-   * @returns {Promise<Array>} List of facilities
-   */
+  * Get all facilities - FIXED VERSION
+  * @returns {Promise<Array>} List of facilities
+  */
   async getFacilities() {
-    return await api.get('/facilities')
+    try {
+      const response = await api.get('/facilities')
+      // Ensure we always return an array
+      return Array.isArray(response) ? response : []
+    } catch (error) {
+      console.error('Failed to get facilities:', error)
+      return [] // Return empty array on error
+    }
   }
 
   /**
@@ -96,13 +123,20 @@ class ApiService {
   }
 
   // ============== PROVIDERS ==============
-  
+
   /**
-   * Get all providers
-   * @returns {Promise<Array>} List of providers
-   */
+  * Get all providers - FIXED VERSION
+  * @returns {Promise<Array>} List of providers
+  */
   async getProviders() {
-    return await api.get('/providers')
+    try {
+      const response = await api.get('/providers')
+      // Ensure we always return an array
+      return Array.isArray(response) ? response : []
+    } catch (error) {
+      console.error('Failed to get providers:', error)
+      return [] // Return empty array on error
+    }
   }
 
   /**
@@ -133,14 +167,21 @@ class ApiService {
   }
 
   // ============== PATIENTS ==============
-  
   /**
-   * Get all patients
+   * Get all patients - FIXED VERSION
    * @returns {Promise<Array>} List of patients
    */
   async getPatients() {
-    return await api.get('/patients')
+    try {
+      const response = await api.get('/patients')
+      // Ensure we always return an array
+      return Array.isArray(response) ? response : []
+    } catch (error) {
+      console.error('Failed to get patients:', error)
+      return [] // Return empty array on error
+    }
   }
+
 
   /**
    * Search patients
@@ -180,7 +221,7 @@ class ApiService {
   }
 
   // ============== MEDICAL RECORDS ==============
-  
+
   /**
    * Get medical records for a patient
    * @param {string} patientId - Patient ID
@@ -219,7 +260,7 @@ class ApiService {
   }
 
   // ============== USSD ==============
-  
+
   /**
    * Send USSD request (for testing)
    * @param {Object} ussdData - USSD request data
@@ -242,7 +283,7 @@ class ApiService {
   }
 
   // ============== SYSTEM ==============
-  
+
   /**
    * Get system logs
    * @param {number} limit - Number of logs to retrieve
@@ -269,7 +310,7 @@ class ApiService {
   }
 
   // ============== UTILITY METHODS ==============
-  
+
   /**
    * Upload file (if needed for future features)
    * @param {File} file - File to upload
@@ -333,7 +374,7 @@ class ApiService {
   }
 
   // ============== VALIDATION HELPERS ==============
-  
+
   /**
    * Validate Ghana phone number
    * @param {string} phone - Phone number
@@ -341,9 +382,9 @@ class ApiService {
    */
   validateGhanaPhone(phone) {
     if (!phone) return { valid: false, message: 'Phone number required' }
-    
+
     const cleaned = phone.replace(/[\s-]/g, '')
-    
+
     if (cleaned.startsWith('0') && cleaned.length === 10) {
       return { valid: true, phone: cleaned }
     } else if (cleaned.startsWith('+233') && cleaned.length === 13) {
@@ -392,12 +433,12 @@ class ApiService {
    */
   formatPhone(phone) {
     if (!phone) return ''
-    
+
     // Ghana phone format: 0XX XXX XXXX
     if (phone.length === 10 && phone.startsWith('0')) {
       return `${phone.substring(0, 3)} ${phone.substring(3, 6)} ${phone.substring(6)}`
     }
-    
+
     return phone
   }
 
@@ -408,9 +449,9 @@ class ApiService {
    */
   sanitizePhone(phone) {
     if (!phone) return ''
-    
+
     let cleaned = phone.replace(/[\s-]/g, '')
-    
+
     if (cleaned.startsWith('+233')) {
       cleaned = '0' + cleaned.substring(4)
     } else if (cleaned.startsWith('233')) {
@@ -418,7 +459,7 @@ class ApiService {
     } else if (!cleaned.startsWith('0') && cleaned.length === 9) {
       cleaned = '0' + cleaned
     }
-    
+
     return cleaned
   }
 }

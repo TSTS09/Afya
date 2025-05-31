@@ -60,7 +60,7 @@
         @click="copyUssdCode"
       >
         <v-icon start>mdi-phone</v-icon>
-        *714#
+        *384*15897#
       </v-chip>
 
       <!-- System Status -->
@@ -214,7 +214,7 @@ export default {
 
     const copyUssdCode = async () => {
       try {
-        await navigator.clipboard.writeText('*714#')
+        await navigator.clipboard.writeText('*384*15897#')
         ussdCopied.value = true
       } catch (error) {
         console.error('Failed to copy USSD code:', error)
