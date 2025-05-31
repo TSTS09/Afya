@@ -4,7 +4,7 @@ import axios from 'axios'
 const api = axios.create({
   baseURL: process.env.NODE_ENV === 'production'
     ? '/api'  // In production, requests go through Firebase Hosting rewrites
-    : 'http://localhost:5001/your-project-id/us-central1/api', // Development - update with your project ID
+    : 'http://localhost:5001/afya-a1006/us-central1/api', // Development - update with your project ID
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json'
