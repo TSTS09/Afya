@@ -1,51 +1,54 @@
 import axios from 'axios'
 
-// Create axios instance with base configuration
+// Create axios instance with base configuration - FIXED VERSION
 const api = axios.create({
   baseURL: process.env.NODE_ENV === 'production'
-    ? '/api'  // In production, requests go through Firebase Hosting rewrites
-    : 'http://localhost:5001/afya-a1006/us-central1/api', // Development - update with your project ID
+    ? 'https://afya-a1006.web.app/api'  // Use your actual Firebase hosting URL
+    : 'http://localhost:5001/afya-a1006/us-central1/api',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json'
   }
 })
 
-// Request interceptor
+// Add request logging for debugging
 api.interceptors.request.use(
   (config) => {
-    console.log(`Making ${config.method?.toUpperCase()} request to ${config.url}`)
+    console.log(`🚀 Making ${config.method?.toUpperCase()} request to ${config.baseURL}${config.url}`)
+    console.log('Request data:', config.data)
     return config
   },
   (error) => {
-    console.error('Request error:', error)
+    console.error('❌ Request error:', error)
     return Promise.reject(error)
   }
 )
 
-// Response interceptor
+// Enhanced response interceptor with better error handling
 api.interceptors.response.use(
   (response) => {
+    console.log('✅ Response received:', response.status, response.data)
     return response.data
   },
   (error) => {
-    console.error('Response error:', error)
-
-    // Handle different error types
+    console.error('❌ Response error:', error)
+    
     if (error.response) {
       // Server responded with error status
-      const message = error.response.data?.error || error.response.data?.message || 'Server error'
+      const message = error.response.data?.error || error.response.data?.message || `Server error: ${error.response.status}`
+      console.error('Server error details:', error.response.data)
       throw new Error(message)
     } else if (error.request) {
       // Request was made but no response received
-      throw new Error('Network error - please check your connection')
+      console.error('Network error - no response received:', error.request)
+      throw new Error('Network error - please check your connection and ensure the backend is running')
     } else {
       // Something else happened
+      console.error('Request setup error:', error.message)
       throw new Error(error.message || 'An unexpected error occurred')
     }
   }
 )
-
 class ApiService {
   // ============== DASHBOARD ==============
 

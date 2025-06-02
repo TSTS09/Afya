@@ -9,8 +9,49 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 
-// Initialize Firebase Admin
-admin.initializeApp();
+// Initialize Firebase Admin with explicit configuration
+try {
+  // For production (when deployed to Firebase)
+  if (process.env.NODE_ENV === 'production' || process.env.FUNCTIONS_EMULATOR) {
+    admin.initializeApp();
+  } else {
+    // For local development, use service account
+    const serviceAccount = process.env.GOOGLE_APPLICATION_CREDENTIALS 
+      ? require(process.env.GOOGLE_APPLICATION_CREDENTIALS)
+      : null;
+    
+    if (serviceAccount) {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+        databaseURL: `https://${process.env.FIREBASE_PROJECT_ID || 'afya-a1006'}-default-rtdb.firebaseio.com`
+      });
+    } else {
+      // Fallback to default initialization
+      admin.initializeApp({
+        projectId: process.env.FIREBASE_PROJECT_ID || 'afya-a1006'
+      });
+    }
+  }
+  
+  functions.logger.info('Firebase Admin initialized successfully');
+} catch (error) {
+  functions.logger.error('Firebase Admin initialization failed:', error);
+  // Try default initialization as fallback
+  if (!admin.apps.length) {
+    admin.initializeApp();
+  }
+}
+
+// Test database connection
+admin.firestore().collection('_test').doc('_connection').set({
+  status: 'connected',
+  timestamp: admin.firestore.FieldValue.serverTimestamp()
+}).then(() => {
+  functions.logger.info('Firestore connection test successful');
+}).catch((error) => {
+  functions.logger.error('Firestore connection test failed:', error);
+});
+
 
 // Import modules
 const dataManager = require('./dataManager');
