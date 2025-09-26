@@ -302,7 +302,7 @@ if __name__ == "__main__":
     db_config = {
         'host': 'localhost',
         'database': 'pg_mq_poc',
-        'user': 'root',  
+        'user': 'postgres',  
         'password': 'Christelle09123'  
     }
     
