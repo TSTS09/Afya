@@ -124,24 +124,66 @@ $$;
 
 
 /* NACK */
-CREATE PROCEDURE mq.nack(delivery_id bigint, retry_after interval DEFAULT '0s'::interval) 
+-- Enhanced NACK with smart retry
+CREATE OR REPLACE PROCEDURE mq.nack(
+    delivery_id bigint, 
+    retry_after interval DEFAULT '0s'::interval
+) 
 LANGUAGE plpgsql
 AS $$
 DECLARE
-  delivery RECORD;
+    delivery RECORD;
+    v_retry_interval interval;
+    v_network_type text;
 BEGIN
-  SELECT * INTO delivery  
-    FROM mq.delivery d WHERE d.delivery_id = nack.delivery_id;
-  IF delivery IS NULL THEN
-    RAISE WARNING 'No such delivery';
-    RETURN;
-  END IF;
-  DELETE FROM mq.delivery d WHERE d.delivery_id = nack.delivery_id;
-  INSERT INTO mq.message_waiting(message_id, queue_id, not_until_time)
-    VALUES (delivery.message_id, delivery.queue_id, now() + nack.retry_after)
-    ON CONFLICT DO NOTHING;
-  INSERT INTO mq.channel_waiting(channel_id, slot, queue_id) 
-    VALUES (delivery.channel_id, delivery.slot, delivery.queue_id)
-    ON CONFLICT DO NOTHING;
+    SELECT d.*, m.retry_count, m.priority 
+    INTO delivery  
+    FROM mq.delivery d 
+    JOIN mq.message m ON m.message_id = d.message_id
+    WHERE d.delivery_id = nack.delivery_id;
+    
+    IF delivery IS NULL THEN
+        RAISE WARNING 'No such delivery';
+        RETURN;
+    END IF;
+    
+    -- Get current network status
+    SELECT network_type INTO v_network_type
+    FROM mq.network_status
+    WHERE channel_id = delivery.channel_id;
+    
+    -- Calculate retry interval based on priority and network
+    IF delivery.priority = 1 THEN -- Critical
+        v_retry_interval := interval '30 seconds' * (delivery.retry_count + 1);
+    ELSIF v_network_type = 'offline' THEN
+        v_retry_interval := interval '5 minutes'; -- Don't retry often when offline
+    ELSE
+        -- Exponential backoff: 1min, 2min, 4min, 8min...
+        v_retry_interval := interval '1 minute' * power(2, delivery.retry_count);
+    END IF;
+    
+    -- Update retry count
+    UPDATE mq.message 
+    SET retry_count = retry_count + 1
+    WHERE message_id = delivery.message_id;
+    
+    -- Check if max retries exceeded
+    IF delivery.retry_count >= 10 THEN
+        -- Move to dead letter queue
+        INSERT INTO mq.failed_messages (message_id, reason, failed_at)
+        VALUES (delivery.message_id, 'max_retries_exceeded', now());
+        
+        DELETE FROM mq.delivery WHERE delivery_id = nack.delivery_id;
+        RETURN;
+    END IF;
+    
+    -- Regular NACK process
+    DELETE FROM mq.delivery d WHERE d.delivery_id = nack.delivery_id;
+    INSERT INTO mq.message_waiting(message_id, queue_id, not_until_time)
+        VALUES (delivery.message_id, delivery.queue_id, now() + v_retry_interval)
+        ON CONFLICT DO NOTHING;
+    INSERT INTO mq.channel_waiting(channel_id, slot, queue_id) 
+        VALUES (delivery.channel_id, delivery.slot, delivery.queue_id)
+        ON CONFLICT DO NOTHING;
 END;
 $$;
