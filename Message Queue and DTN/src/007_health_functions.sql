@@ -1,6 +1,6 @@
 -- Track network conditions per channel/facility
 CREATE TABLE mq.network_status (
-    channel_id bigint REFERENCES mq.channel(channel_id),
+    channel_id bigint REFERENCES mq.channel(channel_id) PRIMARY KEY,
     facility_id text,
     -- 'Accra-General-Hospital'
     network_type text,
@@ -10,6 +10,14 @@ CREATE TABLE mq.network_status (
     packet_loss_percent decimal(5, 2),
     last_updated timestamptz DEFAULT now(),
     is_active boolean DEFAULT true
+);
+
+-- Track protocol selection and history
+CREATE TABLE mq.message_protocol (
+    message_id bigint PRIMARY KEY REFERENCES mq.message(message_id) ON DELETE CASCADE,
+    current_protocol text NOT NULL,
+    protocol_history jsonb DEFAULT '[]'::jsonb,
+    selected_at timestamptz DEFAULT now()
 );
 -- Network detection function
 CREATE OR REPLACE FUNCTION mq.update_network_status(
@@ -53,16 +61,12 @@ SELECT body::text INTO v_body
 FROM mq.message
 WHERE message_id = p_message_id;
 -- Set max size based on protocol
-CASE
-    p_protocol
-    WHEN 'sms' THEN v_max_size := 140;
--- Leave room for headers
-WHEN 'ussd' THEN v_max_size := 150;
-WHEN 'lorawan' THEN v_max_size := 200;
-ELSE v_max_size := 65000;
--- Default large size
-END CASE
-;
+CASE p_protocol
+    WHEN 'sms' THEN v_max_size := 140; -- Leave room for headers
+    WHEN 'ussd' THEN v_max_size := 150;
+    WHEN 'lorawan' THEN v_max_size := 200;
+    ELSE v_max_size := 65000; -- Default large size
+END CASE;
 -- Fragment if needed
 WHILE length(v_body) > 0 LOOP v_fragment_count := v_fragment_count + 1;
 v_chunk := substr(v_body, 1, v_max_size);

@@ -54,14 +54,41 @@ $$ LANGUAGE SQL;
 
 CREATE FUNCTION mq.insert_message()
 RETURNS TRIGGER AS $$
+DECLARE
+    msg_priority int := 5; -- Default priority
+    msg_data_type text;
 BEGIN
-  INSERT INTO mq.message(exchange_id, routing_key, body, headers, publish_time, queue_id)
-    SELECT NEW.exchange_id, NEW.routing_key, NEW.body, NEW.headers, NEW.publish_time, q.queue_id
+    -- Extract data_type from headers if provided
+    msg_data_type := NEW.headers->'data_type';
+    
+    -- Look up priority from health data rules
+    IF msg_data_type IS NOT NULL THEN
+        SELECT priority_default INTO msg_priority
+        FROM mq.health_data_rules 
+        WHERE data_type = msg_data_type;
+        
+        -- If not found, keep default
+        IF msg_priority IS NULL THEN
+            msg_priority := 5;
+        END IF;
+    END IF;
+    
+    -- Also check if priority is explicitly set in headers
+    IF NEW.headers ? 'priority' THEN
+        msg_priority := (NEW.headers->'priority')::int;
+    END IF;
+
+    INSERT INTO mq.message(
+        exchange_id, routing_key, body, headers, publish_time, queue_id,
+        priority, data_type
+    )
+    SELECT NEW.exchange_id, NEW.routing_key, NEW.body, NEW.headers, 
+           NEW.publish_time, q.queue_id, msg_priority, msg_data_type
     FROM mq.queue q
     WHERE NEW.exchange_id = q.exchange_id AND 
-      NEW.routing_key ~ q.routing_key_pattern
+          NEW.routing_key ~ q.routing_key_pattern
     ON CONFLICT DO NOTHING;
-  RETURN NULL;
+    RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 

@@ -3,6 +3,9 @@ import re
 import time
 import platform
 import matplotlib.pyplot as plt
+import socket
+import requests
+from typing import Dict, Optional, Tuple
 
 
 def read_data_from_cmd():
@@ -307,6 +310,141 @@ def plot_all_wifi_signal_strengths_over_time():
         print(f"An error occurred: {e}")
 
 
+def check_internet_connectivity(timeout=5):
+    """Check if internet connection is available"""
+    try:
+        # Try to connect to Google's DNS
+        socket.create_connection(("8.8.8.8", 53), timeout)
+        return True
+    except OSError:
+        pass
+    
+    # Try alternative method with HTTP request
+    try:
+        response = requests.get('http://www.google.com', timeout=timeout)
+        return response.status_code == 200
+    except:
+        return False
+
+
+def detect_cellular_network():
+    """
+    Detect cellular network type (4G/3G/2G)
+    This is a basic implementation - in practice you'd use specific APIs
+    """
+    system = platform.system().lower()
+    
+    try:
+        if system == "windows":
+            # Check for mobile broadband adapters
+            p = subprocess.Popen(
+                ["netsh", "mbn", "show", "interfaces"],
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE
+            )
+            out, _ = p.communicate()
+            output = out.decode('utf-8', errors='ignore')
+            
+            if "Connected" in output:
+                # This is simplified - real implementation would parse signal strength
+                return "4G"  # Assume 4G if mobile broadband is connected
+                
+        elif system == "linux":
+            # Check for mobile data interfaces
+            p = subprocess.Popen(
+                ["nmcli", "dev", "status"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
+            out, _ = p.communicate()
+            output = out.decode('utf-8', errors='ignore')
+            
+            if "gsm" in output.lower() or "lte" in output.lower():
+                return "4G"
+            elif "3g" in output.lower() or "umts" in output.lower():
+                return "3G"
+            elif "2g" in output.lower() or "edge" in output.lower():
+                return "2G"
+                
+    except Exception as e:
+        print(f"Error detecting cellular network: {e}")
+    
+    return None
+
+
+def estimate_bandwidth():
+    """
+    Estimate current bandwidth using speed test
+    Simplified implementation - returns rough estimate
+    """
+    try:
+        # Quick connectivity test
+        start_time = time.time()
+        response = requests.get('http://www.google.com', timeout=10)
+        end_time = time.time()
+        
+        response_time = end_time - start_time
+        
+        # Very rough bandwidth estimation based on response time
+        if response_time < 0.5:
+            return 10000  # ~10 Mbps
+        elif response_time < 1.0:
+            return 5000   # ~5 Mbps
+        elif response_time < 2.0:
+            return 2000   # ~2 Mbps
+        else:
+            return 500    # ~0.5 Mbps
+            
+    except Exception as e:
+        print(f"Bandwidth estimation failed: {e}")
+        return 0
+
+
+def get_comprehensive_network_status():
+    """Get complete network status including WiFi, cellular, and connectivity"""
+    status = {
+        'wifi': None,
+        'cellular': None,
+        'internet': False,
+        'bandwidth_estimate': 0,
+        'primary_connection': 'offline'
+    }
+    
+    try:
+        # Check WiFi
+        wifi_data = read_data_from_cmd()
+        if wifi_data:
+            strongest_signal = max(int(signal) for _, signal in wifi_data)
+            status['wifi'] = {
+                'connected': True,
+                'signal_strength': strongest_signal,
+                'networks': wifi_data
+            }
+            status['primary_connection'] = 'wifi'
+        
+        # Check cellular
+        cellular_type = detect_cellular_network()
+        if cellular_type:
+            status['cellular'] = {
+                'connected': True,
+                'type': cellular_type
+            }
+            if status['primary_connection'] == 'offline':
+                status['primary_connection'] = 'cellular'
+        
+        # Check internet connectivity
+        status['internet'] = check_internet_connectivity()
+        
+        # Estimate bandwidth if we have connectivity
+        if status['internet']:
+            status['bandwidth_estimate'] = estimate_bandwidth()
+            
+    except Exception as e:
+        print(f"Error getting network status: {e}")
+    
+    return status
+
+
 def main():
     """Main function to run the program."""
     print("Choose an option:")
@@ -315,8 +453,11 @@ def main():
     print("3: Discover Active WiFi Networks")
     print("4: Connect to the Strongest WiFi Network ")
     print("5: Display All WiFi Signals")
+    print("6: Check Internet Connectivity")
+    print("7: Detect Cellular Network")
+    print("8: Get Comprehensive Network Status")
 
-    choice = input("Enter 1, 2, 3, 4, or 5: ").strip()
+    choice = input("Enter 1-8: ").strip()
 
     if choice == "1":
         print("Displaying WiFi Signal Strength...")
@@ -333,6 +474,18 @@ def main():
     elif choice == "5":
         print("Displaying Signal Strengths of All WiFi Networks Over Time...")
         plot_all_wifi_signal_strengths_over_time()
+    elif choice == "6":
+        print("Checking Internet Connectivity...")
+        connected = check_internet_connectivity()
+        print(f"Internet connection: {'Available' if connected else 'Not available'}")
+    elif choice == "7":
+        print("Detecting Cellular Network...")
+        cellular = detect_cellular_network()
+        print(f"Cellular network: {cellular if cellular else 'Not detected'}")
+    elif choice == "8":
+        print("Getting Comprehensive Network Status...")
+        status = get_comprehensive_network_status()
+        print(f"Network Status: {status}")
     else:
         print("Invalid choice. Please run the program again and select a valid option.")
 

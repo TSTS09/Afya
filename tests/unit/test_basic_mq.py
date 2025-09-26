@@ -103,8 +103,18 @@ class BasicMQTest:
             # Open channel
             cur.execute("CALL mq.open_channel('Test Queue', 1)")
             
-            # Listen for notifications
-            cur.execute("LISTEN \"1\"")  # Channel ID usually starts at 1
+            # Get the actual channel ID that was created
+            cur.execute("""
+                SELECT channel_id FROM mq.channel 
+                WHERE channel_name = %s
+            """, (str(consumer_conn.get_backend_pid()),))
+            
+            result = cur.fetchone()
+            if result:
+                channel_id = result[0]
+                cur.execute(f'LISTEN "{channel_id}"')
+            else:
+                cur.execute('LISTEN "1"')  # Fallback
             
             # Poll for messages
             start_time = time.time()
