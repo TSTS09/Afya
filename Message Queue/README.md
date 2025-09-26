@@ -103,8 +103,3 @@ This could be triggered by a cron task (e.g. [pg_cron](https://github.com/citusd
 
 1. Create a database
 2. Execute `.sql` files in [src](./src/)
-
-
-
-
-fyvhjbjhbmnbjbjbjbj

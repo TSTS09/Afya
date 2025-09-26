@@ -38,4 +38,3 @@ def handle_message(connection, cur):
 
 
 db_listen()
-

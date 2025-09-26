@@ -15,14 +15,19 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION mq.take_waiting_message(queue_id bigint)
+CREATE OR REPLACE FUNCTION mq.take_waiting_message(queue_id bigint)
 RETURNS bigint AS $$
   DELETE FROM mq.message_waiting mw
   WHERE mw.message_id = (
-    SELECT m.message_id FROM mq.message_waiting m
-    WHERE m.queue_id = queue_id
-      AND (not_until_time IS NULL OR not_until_time <= now())
-    ORDER BY m.message_id
+    SELECT mw.message_id 
+    FROM mq.message_waiting mw
+    JOIN mq.message m ON m.message_id = mw.message_id
+    WHERE mw.queue_id = take_waiting_message.queue_id
+      AND (mw.not_until_time IS NULL OR mw.not_until_time <= now())
+    ORDER BY 
+      m.priority ASC,     -- NEW: Priority first
+      m.retry_count ASC,  -- NEW: Retry count second
+      m.message_id ASC    -- Then FIFO
     FOR UPDATE SKIP LOCKED
     LIMIT 1
   ) RETURNING mw.message_id;
