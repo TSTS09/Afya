@@ -1,0 +1,32 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Message Queue", "Message Queue", "{757BA89E-BA18-B46E-DAD7-643FDB111B5E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{F7248AF4-AD0D-B23D-283D-C5F71FD9BDDF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example", "Message Queue\examples\net6.0\Example.csproj", "{FB198774-A171-D673-5AAD-095BA19E02B6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FB198774-A171-D673-5AAD-095BA19E02B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB198774-A171-D673-5AAD-095BA19E02B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB198774-A171-D673-5AAD-095BA19E02B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB198774-A171-D673-5AAD-095BA19E02B6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F7248AF4-AD0D-B23D-283D-C5F71FD9BDDF} = {757BA89E-BA18-B46E-DAD7-643FDB111B5E}
+		{FB198774-A171-D673-5AAD-095BA19E02B6} = {F7248AF4-AD0D-B23D-283D-C5F71FD9BDDF}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {61DED4E4-CBDE-46D0-BDA0-32C204581187}
+	EndGlobalSection
+EndGlobal
