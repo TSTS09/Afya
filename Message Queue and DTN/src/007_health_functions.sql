@@ -12,17 +12,19 @@ CREATE TABLE mq.network_status (
     is_active boolean DEFAULT true
 );
 -- Network detection function
-CREATE FUNCTION mq.update_network_status(
+CREATE OR REPLACE FUNCTION mq.update_network_status(
     p_channel_id bigint,
     p_network_type text,
     p_bandwidth int DEFAULT NULL
-) RETURNS void AS $$ BEGIN
-INSERT INTO mq.network_status (channel_id, network_type, bandwidth_kbps)
-VALUES (p_channel_id, p_network_type, p_bandwidth) ON CONFLICT (channel_id) DO
-UPDATE
-SET network_type = EXCLUDED.network_type,
-    bandwidth_kbps = EXCLUDED.bandwidth_kbps,
-    last_updated = now();
+) RETURNS void AS $$ 
+BEGIN
+    INSERT INTO mq.network_status (channel_id, network_type, bandwidth_kbps, last_updated)
+    VALUES (p_channel_id, p_network_type, p_bandwidth, now()) 
+    ON CONFLICT (channel_id) DO UPDATE 
+    SET 
+        network_type = EXCLUDED.network_type,
+        bandwidth_kbps = EXCLUDED.bandwidth_kbps,
+        last_updated = now();
 END;
 $$ LANGUAGE plpgsql;
 -- Fragment large messages for SMS/USSD

@@ -46,6 +46,33 @@ public sealed class EventingConsumer : IDisposable
         openChannelCommand.ExecuteNonQuery();
         transaction.Commit();
     }
+    // Add this method to EventingConsumer class
+    private long? currentChannelId = null;
+
+    public void UpdateNetworkStatus(string networkType, int? bandwidth = null)
+    {
+        if (!currentChannelId.HasValue)
+        {
+            // Get channel ID
+            using var cmd = dataSource.CreateCommand(
+                "SELECT channel_id FROM mq.channel WHERE channel_name = @pid"
+            );
+            cmd.Parameters.Add(new NpgsqlParameter("pid",
+                System.Diagnostics.Process.GetCurrentProcess().Id.ToString()));
+            var result = cmd.ExecuteScalar();
+            if (result != null)
+                currentChannelId = (long)result;
+        }
+
+        if (currentChannelId.HasValue)
+        {
+            using var cmd = dataSource.CreateCommand("SELECT mq.update_network_status(@id, @type, @bw)");
+            cmd.Parameters.Add(new NpgsqlParameter("id", currentChannelId.Value));
+            cmd.Parameters.Add(new NpgsqlParameter("type", networkType));
+            cmd.Parameters.Add(new NpgsqlParameter("bw", bandwidth ?? DBNull.Value));
+            cmd.ExecuteNonQuery();
+        }
+    }
 
     public void Wait()
     {
