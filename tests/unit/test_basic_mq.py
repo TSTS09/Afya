@@ -185,8 +185,8 @@ if __name__ == "__main__":
     db_config = {
         'host': 'localhost',
         'database': 'pg_mq_poc',
-        'user': 'cfurano',  # Change to your username
-        'password': 'cfurano'  # Change to your password
+        'user': 'root',  
+        'password': 'Christelle09123'  
     }
     
     tester = BasicMQTest(db_config)
