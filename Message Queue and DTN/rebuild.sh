@@ -1,4 +1,4 @@
-#!/bin/bash -e
+clea#!/bin/bash -e
 set -e
 
 DATABASE_NAME=pg_mq_poc

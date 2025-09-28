@@ -228,9 +228,9 @@ def main():
     db_config = {
         'host': 'localhost',
         'database': 'pg_mq_poc',
-        'user': 'cfurano',      # ← Change this to your PostgreSQL username
-        'password': 'cfurano',  # ← Change this to your PostgreSQL password
-        'port': 5432
+        'user': 'postgres',
+        'password': 'Christelle09123',
+        'port': 5433
     }
     
     # Validate database connection first
