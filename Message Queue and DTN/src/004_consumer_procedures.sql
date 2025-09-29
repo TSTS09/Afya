@@ -135,7 +135,10 @@ DECLARE
     delivery RECORD;
     v_retry_interval interval;
     v_network_type text;
+    v_new_retry_count int;
 BEGIN
+    RAISE NOTICE 'NACK: Starting NACK procedure for delivery_id %', nack.delivery_id;
+    
     SELECT d.*, m.retry_count, m.priority 
     INTO delivery  
     FROM mq.delivery d 
@@ -147,34 +150,49 @@ BEGIN
         RETURN;
     END IF;
     
-    -- Get current network status
-    SELECT network_type INTO v_network_type
-    FROM mq.network_status
-    WHERE channel_id = delivery.channel_id;
+    RAISE NOTICE 'NACK: Found delivery for message_id %, current retry_count %', 
+        delivery.message_id, delivery.retry_count;
     
-    -- Calculate retry interval based on priority and network
-    IF delivery.priority = 1 THEN -- Critical
-        v_retry_interval := interval '30 seconds' * (delivery.retry_count + 1);
-    ELSIF v_network_type = 'offline' THEN
-        v_retry_interval := interval '5 minutes'; -- Don't retry often when offline
-    ELSE
-        -- Exponential backoff: 1min, 2min, 4min, 8min...
-        v_retry_interval := interval '1 minute' * power(2, delivery.retry_count);
-    END IF;
+    -- Update retry count FIRST and get the new value
+    RAISE NOTICE 'NACK: About to update retry_count for message_id %', delivery.message_id;
     
-    -- Update retry count
     UPDATE mq.message 
     SET retry_count = retry_count + 1
-    WHERE message_id = delivery.message_id;
+    WHERE message_id = delivery.message_id
+    RETURNING retry_count INTO v_new_retry_count;
     
-    -- Check if max retries exceeded
-    IF delivery.retry_count >= 10 THEN
+    -- Debug: raise notice to see the update
+    RAISE NOTICE 'NACK: Updated message_id % from retry_count % to %', 
+        delivery.message_id, delivery.retry_count, v_new_retry_count;
+    
+    IF v_new_retry_count IS NULL THEN
+        RAISE WARNING 'NACK: UPDATE returned NULL - no message updated!';
+        RETURN;
+    END IF;
+    
+    -- Check if max retries exceeded (use the NEW count)
+    IF v_new_retry_count >= 10 THEN
         -- Move to dead letter queue
         INSERT INTO mq.failed_messages (message_id, reason, failed_at)
         VALUES (delivery.message_id, 'max_retries_exceeded', now());
         
         DELETE FROM mq.delivery WHERE delivery_id = nack.delivery_id;
         RETURN;
+    END IF;
+    
+    -- Get current network status
+    SELECT network_type INTO v_network_type
+    FROM mq.network_status
+    WHERE channel_id = delivery.channel_id;
+    
+    -- Calculate retry interval based on priority and network (use NEW count)
+    IF delivery.priority = 1 THEN -- Critical
+        v_retry_interval := interval '30 seconds' * v_new_retry_count;
+    ELSIF v_network_type = 'offline' THEN
+        v_retry_interval := interval '5 minutes'; -- Don't retry often when offline
+    ELSE
+        -- Exponential backoff: 1min, 2min, 4min, 8min...
+        v_retry_interval := interval '1 minute' * power(2, v_new_retry_count - 1);
     END IF;
     
     -- Regular NACK process

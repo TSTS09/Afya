@@ -4,10 +4,12 @@ tests/run_all_tests.py
 Complete test runner for the message queue and DTN system
 """
 import sys
+import os
 import time
 import traceback
 import psycopg2
 from datetime import datetime
+from pathlib import Path
 
 # Import test classes (assuming they're in the same directory structure)
 sys.path.append('.')
@@ -30,10 +32,78 @@ class TestRunner:
         self.db_config = db_config
         self.test_results = {}
         self.start_time = None
+        self.sql_dir = Path(__file__).parent.parent / 'Message Queue and DTN' / 'src'
         
+    def check_schema_exists(self):
+        """Check if the mq schema exists"""
+        try:
+            conn = psycopg2.connect(**self.db_config)
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1 FROM information_schema.schemata WHERE schema_name = 'mq'")
+                exists = cur.fetchone() is not None
+            conn.close()
+            return exists
+        except Exception:
+            return False
+    
+    def initialize_schema(self):
+        """Initialize the database schema from SQL files"""
+        print("Initializing database schema...")
+        
+        # Define the correct order of SQL files
+        sql_files = [
+            '000_initialize.sql',
+            '001_tables.sql',
+            '001a_health_tables.sql',
+            '002a_health_triggers.sql',  # Use enhanced version instead of 002_triggers.sql
+            '003_exchange_procedures.sql',
+            '004_consumer_procedures.sql',
+            '005_producer_procedures.sql',
+            '007_health_functions.sql',
+            '008_monitoring_views.sql'
+        ]
+        
+        try:
+            conn = psycopg2.connect(**self.db_config)
+            conn.autocommit = True
+            
+            with conn.cursor() as cur:
+                # Drop existing schema if it exists
+                cur.execute("DROP SCHEMA IF EXISTS mq CASCADE")
+                print("✓ Dropped existing mq schema")
+                
+                # Execute each SQL file in order
+                for sql_file in sql_files:
+                    file_path = self.sql_dir / sql_file
+                    if file_path.exists():
+                        print(f"   Executing {sql_file}...")
+                        with open(file_path, 'r', encoding='utf-8') as f:
+                            sql_content = f.read()
+                            # Execute as a single transaction instead of splitting
+                            # This preserves PostgreSQL dollar-quoted strings
+                            cur.execute(sql_content)
+                        print(f"   ✓ {sql_file} executed successfully")
+                    else:
+                        print(f"   ⚠ Warning: {sql_file} not found")
+                        
+            conn.close()
+            print("✓ Database schema initialized successfully")
+            return True
+            
+        except Exception as e:
+            print(f"✗ Schema initialization failed: {e}")
+            print(f"SQL directory: {self.sql_dir}")
+            traceback.print_exc()
+            return False
+    
     def setup_database(self):
-        """Ensure database is clean before testing"""
+        """Ensure database is properly set up before testing"""
         print("Setting up test database...")
+        
+        # Always reinitialize schema for clean tests
+        print("Reinitializing schema for clean test environment...")
+        if not self.initialize_schema():
+            return False
         
         try:
             # Connect to database
@@ -41,19 +111,24 @@ class TestRunner:
             conn.autocommit = True
             
             with conn.cursor() as cur:
-                # Clean up any existing test data
-                cur.execute("""
-                    DELETE FROM mq.message_intake 
-                    WHERE exchange_id IN (
-                        SELECT exchange_id FROM mq.exchange 
-                        WHERE exchange_name LIKE '%Test%'
-                    )
-                """)
-                
-                cur.execute("DELETE FROM mq.exchange WHERE exchange_name LIKE '%Test%'")
-                
-                # Close any existing channels
-                cur.execute("CALL mq.close_dead_channels()")
+                # Clean up any existing test data safely
+                try:
+                    cur.execute("""
+                        DELETE FROM mq.message_intake 
+                        WHERE exchange_id IN (
+                            SELECT exchange_id FROM mq.exchange 
+                            WHERE exchange_name LIKE '%Test%'
+                        )
+                    """)
+                    
+                    cur.execute("DELETE FROM mq.exchange WHERE exchange_name LIKE '%Test%'")
+                    
+                    # Close any existing channels
+                    cur.execute("CALL mq.close_dead_channels()")
+                    
+                except psycopg2.Error as e:
+                    print(f"Warning during cleanup: {e}")
+                    # Continue anyway - this might be expected on first run
                 
                 print("✓ Database cleaned and ready for testing")
                 

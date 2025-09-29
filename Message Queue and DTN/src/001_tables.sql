@@ -38,7 +38,7 @@ CREATE TABLE mq.message (
     original_size int,
     compressed_size int,
     compression_type text DEFAULT 'none',
-    data_type text REFERENCES mq.health_data_rules(data_type),
+    data_type text,
     ttl timestamptz DEFAULT (now() + interval '24 hours')
 );
 CREATE INDEX ON mq.message(queue_id);

@@ -212,20 +212,22 @@ class HealthDataTest:
         print("Testing message TTL...")
 
         with self.connection.cursor() as cur:
-            # Create message with short TTL
+            # Create message with short TTL using proper message flow
+            # First publish it normally
             cur.execute("""
-                INSERT INTO mq.message (
-                    exchange_id, routing_key, body, headers, queue_id, 
-                    data_type, ttl
-                ) VALUES (
-                    (SELECT exchange_id FROM mq.exchange WHERE exchange_name = 'Health Exchange'),
+                CALL mq.publish(
+                    'Health Exchange',
                     'lab-expired-test',
                     '{"test": "expired"}',
-                    'data_type=>lab_routine',
-                    (SELECT queue_id FROM mq.queue WHERE queue_name = 'Lab Results Queue'),
-                    'lab_routine',
-                    now() - interval '1 hour'  -- Already expired
+                    'data_type=>lab_routine'
                 )
+            """)
+            
+            # Update the TTL to be expired 
+            cur.execute("""
+                UPDATE mq.message 
+                SET ttl = now() - interval '1 hour'
+                WHERE routing_key = 'lab-expired-test'
             """)
 
             # Run cleanup

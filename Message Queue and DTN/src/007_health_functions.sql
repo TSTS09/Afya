@@ -1,24 +1,5 @@
--- Track network conditions per channel/facility
-CREATE TABLE mq.network_status (
-    channel_id bigint REFERENCES mq.channel(channel_id) PRIMARY KEY,
-    facility_id text,
-    -- 'Accra-General-Hospital'
-    network_type text,
-    -- '4G', '3G', '2G', 'EDGE', 'offline'
-    bandwidth_kbps int,
-    latency_ms int,
-    packet_loss_percent decimal(5, 2),
-    last_updated timestamptz DEFAULT now(),
-    is_active boolean DEFAULT true
-);
+-- Health-specific functions for protocol selection and message handling
 
--- Track protocol selection and history
-CREATE TABLE mq.message_protocol (
-    message_id bigint PRIMARY KEY REFERENCES mq.message(message_id) ON DELETE CASCADE,
-    current_protocol text NOT NULL,
-    protocol_history jsonb DEFAULT '[]'::jsonb,
-    selected_at timestamptz DEFAULT now()
-);
 -- Network detection function
 CREATE OR REPLACE FUNCTION mq.update_network_status(
     p_channel_id bigint,
@@ -35,18 +16,7 @@ BEGIN
         last_updated = now();
 END;
 $$ LANGUAGE plpgsql;
--- Fragment large messages for SMS/USSD
-CREATE TABLE mq.message_fragments (
-    fragment_id bigserial PRIMARY KEY,
-    message_id bigint REFERENCES mq.message(message_id),
-    fragment_number int,
-    total_fragments int,
-    fragment_data text,
-    fragment_size int,
-    protocol text,
-    -- 'sms', 'ussd'
-    sent boolean DEFAULT false
-);
+
 -- Function to fragment messages based on protocol
 CREATE FUNCTION mq.fragment_message(
     p_message_id bigint,

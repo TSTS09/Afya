@@ -49,7 +49,13 @@ INSERT INTO mq.health_data_rules VALUES
     ('lab_routine', 3, 10240, '24 hours', true, true, '{http,sms_multipart}'),
     ('prescription', 2, 2048, '4 hours', true, true, '{ussd,sms}'),
     ('insurance_claim', 4, 102400, '7 days', true, false, '{http,lorawan}'),
-    ('patient_vitals', 3, 512, '2 hours', false, false, '{lorawan,http}');
+    ('patient_vitals', 3, 512, '2 hours', false, false, '{lorawan,http}'),
+    ('test', 3, 1024, '1 hour', false, false, '{http}');
+
+-- Add foreign key constraint now that the table exists
+ALTER TABLE mq.message 
+ADD CONSTRAINT fk_message_data_type 
+FOREIGN KEY (data_type) REFERENCES mq.health_data_rules(data_type);
 
 -- Failed messages audit
 CREATE TABLE mq.failed_messages (
