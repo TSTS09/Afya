@@ -22,7 +22,7 @@ CREATE TABLE mq.queue (
     routing_key_pattern text NOT NULL DEFAULT '^.*$'
 );
 
--- ENHANCED message table with health-specific columns
+-- message table with health-specific columns
 CREATE TABLE mq.message (
     message_id bigserial PRIMARY KEY,
     exchange_id int NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE mq.message (
     headers hstore NOT NULL DEFAULT '',
     publish_time timestamptz NOT NULL DEFAULT now(),
     queue_id bigint NOT NULL REFERENCES mq.queue(queue_id) ON DELETE CASCADE,
-    -- Health-specific additions
+    -- Health-specific 
     priority int DEFAULT 5 CHECK (priority BETWEEN 1 AND 5),
     retry_count int DEFAULT 0,
     max_retries int DEFAULT 10,
