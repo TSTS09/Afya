@@ -17,6 +17,17 @@ try:
     from unit.test_basic_mq import BasicMQTest
     from health_scenarios.test_lab_results import HealthDataTest
     from integration.test_full_workflow import IntegrationTest
+    
+    # Try to import SMS integration test
+    try:
+        from test_sms_integration import SMSIntegrationTest
+        SMS_TESTS_AVAILABLE = True
+    except ImportError:
+        print("⚠️  SMS Integration tests not available")
+        print("   Make sure test_sms_integration.py is in the tests directory")
+        print("   And SMS gateway components are installed")
+        SMS_TESTS_AVAILABLE = False
+        
 except ImportError:
     print("Import Error: Make sure test files are in the correct directory structure")
     print("Expected structure:")
@@ -24,6 +35,7 @@ except ImportError:
     print("├── unit/test_basic_mq.py")
     print("├── health_scenarios/test_lab_results.py")
     print("├── integration/test_full_workflow.py")
+    print("├── test_sms_integration.py")
     print("└── run_all_tests.py")
     sys.exit(1)
 

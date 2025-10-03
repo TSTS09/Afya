@@ -1,0 +1,41 @@
+# SMS Gateway Integration Requirements
+# Install with: pip install -r requirements_sms.txt
+
+# Core dependencies
+psycopg2-binary>=2.9.0
+asyncio>=3.4.3
+aiohttp>=3.8.0
+
+# Web server and API
+Flask>=2.3.0
+Flask-CORS>=4.0.0
+requests>=2.31.0
+
+# Security and encryption
+cryptography>=41.0.0
+pyjwt>=2.8.0
+
+# Data handling
+python-dateutil>=2.8.0
+
+# Optional: SMS Gateway specific libraries
+# Uncomment based on your SMS gateway provider:
+
+# For Twilio
+# twilio>=8.5.0
+
+# For Africa's Talking
+# africastalking>=1.2.5
+
+# For other gateways, add as needed
+
+# Development and testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+
+# Logging and monitoring
+python-json-logger>=2.0.0
+
+# Optional: Web UI for monitoring
+# dash>=2.14.0
+# plotly>=5.15.0
