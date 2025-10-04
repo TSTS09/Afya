@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-SMS Integration Test for Healthcare Message Queue
-Tests SMS packet collection, queuing, and forwarding
+SMS Integration Test Suite for Healthcare Message Queue
+Validates SMS packet collection, queuing, prioritization, and secure forwarding.
+Tests healthcare-specific features including encryption and protocol selection.
 """
 import requests
 import json
@@ -17,7 +18,11 @@ class SMSIntegrationTest:
         self.connection = None
         
     def connect_to_db(self):
-        """Connect to the database"""
+        """Establishes database connection for test operations.
+        
+        Configures PostgreSQL connection with autocommit enabled
+        for immediate test data visibility and cleanup.
+        """
         try:
             self.connection = psycopg2.connect(**self.db_config)
             self.connection.autocommit = True
@@ -27,7 +32,11 @@ class SMSIntegrationTest:
             raise
     
     def setup_test_environment(self):
-        """Setup the test environment"""
+        """Configures test environment with required exchanges and queues.
+        
+        Creates health exchange and SMS-specific queues with priority-based
+        routing patterns for comprehensive integration testing.
+        """
         print("\n🔧 Setting up test environment...")
         
         with self.connection.cursor() as cur:
@@ -66,7 +75,14 @@ class SMSIntegrationTest:
         print("✅ Test environment setup complete")
     
     def test_webhook_health(self):
-        """Test webhook server health"""
+        """Validates webhook server availability and health status.
+        
+        Verifies that SMS webhook server is running and responding
+        to health check requests before executing integration tests.
+        
+        Returns:
+            bool: True if webhook server is healthy and accessible.
+        """
         print("\n🏥 Testing webhook server health...")
         
         try:
@@ -82,7 +98,17 @@ class SMSIntegrationTest:
             return False
     
     def send_test_sms(self, sms_data):
-        """Send a test SMS to the webhook"""
+        """Transmits test SMS data to webhook endpoint for processing.
+        
+        Posts SMS data to webhook server and validates response status
+        to confirm successful message acceptance and queuing.
+        
+        Args:
+            sms_data: SMS message data in webhook format.
+            
+        Returns:
+            bool: True if SMS was successfully processed by webhook.
+        """
         try:
             response = requests.post(
                 f"{self.webhook_url}/sms/webhook",
@@ -105,7 +131,18 @@ class SMSIntegrationTest:
             return False
     
     def verify_message_in_queue(self, expected_data_type, expected_priority):
-        """Verify message was properly queued"""
+        """Validates message presence in queue with correct classification.
+        
+        Queries message queue database to confirm message was properly
+        classified, prioritized, and queued according to healthcare rules.
+        
+        Args:
+            expected_data_type: Expected healthcare data type classification.
+            expected_priority: Expected priority level assignment.
+            
+        Returns:
+            bool: True if message found with correct classification.
+        """
         print(f"🔍 Checking for {expected_data_type} message in queue...")
         
         with self.connection.cursor() as cur:
@@ -130,7 +167,14 @@ class SMSIntegrationTest:
                 return False
     
     def test_hiv_critical_sms(self):
-        """Test HIV result SMS (critical priority)"""
+        """Tests HIV result SMS processing with critical priority assignment.
+        
+        Validates that HIV-related SMS messages receive highest priority
+        classification and appropriate TTL for urgent medical data.
+        
+        Returns:
+            bool: True if HIV SMS processed with priority 1 classification.
+        """
         print("\n🩸 Testing HIV Critical SMS...")
         
         sms_data = {
@@ -153,7 +197,14 @@ class SMSIntegrationTest:
         return False
     
     def test_prescription_sms(self):
-        """Test prescription SMS (high priority)"""
+        """Tests prescription SMS processing with high priority assignment.
+        
+        Validates that prescription-related SMS messages receive high priority
+        classification appropriate for medication orders and pharmacy coordination.
+        
+        Returns:
+            bool: True if prescription SMS processed with priority 2 classification.
+        """
         print("\n💊 Testing Prescription SMS...")
         
         sms_data = {

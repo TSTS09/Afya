@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 SMS Webhook Server for Healthcare Message Queue
-Handles incoming SMS webhooks and integrates with the message queue
+Provides HTTP endpoints for SMS gateway integration with healthcare message system.
+Handles incoming webhooks, message validation, and integration with PostgreSQL queue.
 """
 import json
 import asyncio
@@ -57,7 +58,14 @@ sms_adapter = None
 
 
 def initialize_sms_adapter():
-    """Initialize the SMS gateway adapter"""
+    """Initializes SMS gateway adapter with database connection.
+    
+    Creates SMSGatewayAdapter instance, establishes database connectivity,
+    and configures encryption for healthcare data processing.
+    
+    Returns:
+        bool: True if adapter initialization succeeds, False otherwise.
+    """
     global sms_adapter
     try:
         sms_adapter = SMSGatewayAdapter(
@@ -75,7 +83,14 @@ def initialize_sms_adapter():
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    """Health check endpoint"""
+    """Provides service health status endpoint.
+    
+    Returns basic service information and timestamp for monitoring
+    and load balancer health check integration.
+    
+    Returns:
+        JSON response with service status and timestamp.
+    """
     return jsonify({
         'status': 'healthy',
         'timestamp': datetime.now().isoformat(),
@@ -85,12 +100,20 @@ def health_check():
 
 @app.route('/sms/webhook', methods=['POST'])
 def sms_webhook():
-    """Handle incoming SMS webhooks from gateway"""
+    """Handles incoming SMS webhooks from gateway providers.
+    
+    Validates webhook payload, processes SMS content through healthcare
+    classification system, and queues messages for delivery. Supports
+    both structured JSON and plain text SMS formats.
+    
+    Returns:
+        JSON response indicating processing success or failure with details.
+    """
     try:
-        # Log the incoming request
+        # Log incoming request for audit trail
         logger.info(f"Received SMS webhook: {request.remote_addr}")
         
-        # Get webhook data
+        # Extract webhook data from request payload
         webhook_data = request.get_json()
         if not webhook_data:
             logger.warning("No JSON data in webhook request")
@@ -147,7 +170,14 @@ def sms_webhook():
 
 @app.route('/sms/send', methods=['POST'])
 def send_sms():
-    """Manual SMS sending endpoint for testing"""
+    """Provides manual SMS sending endpoint for testing and integration.
+    
+    Accepts SMS message data and processes through the same pipeline
+    as webhook-received messages for testing and manual message injection.
+    
+    Returns:
+        JSON response indicating whether SMS was successfully queued.
+    """
     try:
         data = request.get_json()
         
@@ -161,7 +191,7 @@ def send_sms():
                 'missing_fields': missing_fields
             }), 400
         
-        # Create a mock webhook payload for sending
+        # I create a mock webhook payload for sending
         webhook_data = {
             'from': 'SYSTEM',
             'to': data['to'],
@@ -204,9 +234,16 @@ def send_sms():
 
 @app.route('/sms/status', methods=['GET'])
 def sms_status():
-    """Get SMS system status"""
+    """Retrieves SMS system operational status and statistics.
+    
+    Queries message queue database for current SMS processing metrics
+    including waiting message counts and priority distribution.
+    
+    Returns:
+        JSON response with system status and operational statistics.
+    """
     try:
-        # Query message queue for SMS statistics
+        # I query message queue for SMS statistics
         with sms_adapter.connection.cursor() as cur:
             # Get waiting SMS messages
             cur.execute("""
@@ -242,9 +279,16 @@ def sms_status():
 
 @app.route('/sms/test', methods=['POST'])
 def test_sms_flow():
-    """Test the complete SMS flow with sample data"""
+    """Executes comprehensive SMS flow testing with sample healthcare data.
+    
+    Processes predefined healthcare SMS messages through complete pipeline
+    including HIV results, prescriptions, and lab data for system validation.
+    
+    Returns:
+        JSON response with test results and processing status for each message.
+    """
     try:
-        # Sample healthcare SMS messages for testing
+        # I use sample healthcare SMS messages for testing
         test_messages = [
             {
                 'from': '+233201234567',
@@ -301,7 +345,7 @@ def test_sms_flow():
 
 
 if __name__ == '__main__':
-    # Initialize SMS adapter
+    # I initialize SMS adapter
     if not initialize_sms_adapter():
         logger.error("Failed to initialize SMS adapter. Exiting.")
         sys.exit(1)

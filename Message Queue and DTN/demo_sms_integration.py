@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
-Quick Start Demo for SMS Gateway Integration
-Run this to see SMS integration in action
+SMS Gateway Integration Demonstration for Healthcare Message Queue
+
+Provides interactive demonstration of SMS gateway functionality
+with healthcare-specific data processing, encryption, and routing.
+Executes test scenarios for medical data transmission verification.
 """
 import json
 import time
@@ -11,7 +14,12 @@ from datetime import datetime
 
 
 def demo_sms_flow():
-    """Demonstrate the complete SMS integration flow"""
+    """Demonstrates complete SMS integration workflow.
+    
+    Executes comprehensive test sequence showing webhook processing,
+    medical data prioritization, message queuing, encryption handling,
+    and network-aware protocol selection for healthcare facilities.
+    """
     
     print("🏥 Healthcare SMS Gateway Integration Demo")
     print("="*60)

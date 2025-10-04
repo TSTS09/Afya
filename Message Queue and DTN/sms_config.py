@@ -1,5 +1,6 @@
-# SMS Gateway Configuration
-# Update these values for your specific SMS gateway provider
+# SMS Gateway Configuration for Healthcare Message Queue System
+# Contains database settings, gateway provider configurations,
+# healthcare-specific priority rules, and security parameters.
 
 # Database Configuration
 DATABASE = {
@@ -16,7 +17,10 @@ DATABASE = {
 TWILIO_CONFIG = {
     'api_key': 'your_twilio_account_sid',
     'api_secret': 'your_twilio_auth_token',
-    'send_url': 'https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json',
+    'send_url': (
+        'https://api.twilio.com/2010-04-01/Accounts/'
+        '{account_sid}/Messages.json'
+    ),
     'sender_id': '+1234567890',  # Your Twilio phone number
     'webhook_auth_token': 'your_webhook_auth_token'
 }
@@ -41,7 +45,8 @@ GENERIC_SMS_CONFIG = {
 }
 
 # Choose your SMS gateway provider
-SMS_GATEWAY = GENERIC_SMS_CONFIG  # Change to TWILIO_CONFIG or AFRICAS_TALKING_CONFIG
+# Change to TWILIO_CONFIG or AFRICAS_TALKING_CONFIG
+SMS_GATEWAY = GENERIC_SMS_CONFIG
 
 # Encryption Configuration
 ENCRYPTION = {
@@ -58,8 +63,8 @@ WEBHOOK_SERVER = {
     'ssl_key': None    # Path to SSL private key for HTTPS
 }
 
-# Healthcare Facility Mapping
-# Map phone numbers to facility IDs
+# Healthcare Facility Phone Number Mapping
+# Maps phone numbers to healthcare facility identifiers for routing
 FACILITY_MAPPING = {
     '+233201234567': 'ACCRA_GENERAL_001',
     '+233501234568': 'KUMASI_HEALTH_002', 
@@ -68,7 +73,9 @@ FACILITY_MAPPING = {
     '+233551234571': 'TAKORADI_CLINIC_005'
 }
 
-# Priority Configuration for Healthcare Data Types
+# Healthcare Data Priority Configuration
+# Defines priority levels, TTL values, and protocol constraints
+# for medical data types
 HEALTHCARE_PRIORITIES = {
     'hiv': {
         'priority': 1,

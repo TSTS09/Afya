@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-SMS Gateway Setup Script for Healthcare Message Queue
-Configures and initializes SMS integration components
+SMS Gateway Setup and Configuration Script for Healthcare Message Queue
+Automates installation, configuration validation, and database initialization
+for SMS gateway integration with healthcare message queuing system.
 """
 import os
 import sys
@@ -11,7 +12,14 @@ from pathlib import Path
 
 
 def check_python_version():
-    """Check if Python version is compatible"""
+    """Validates Python version compatibility for SMS gateway components.
+    
+    Ensures Python 3.8 or higher is available for asyncio and modern
+    cryptography library support required by healthcare data encryption.
+    
+    Returns:
+        bool: True if Python version meets minimum requirements.
+    """
     if sys.version_info < (3, 8):
         print("❌ Python 3.8 or higher is required")
         print(f"Current version: {sys.version}")
@@ -21,7 +29,14 @@ def check_python_version():
 
 
 def install_requirements():
-    """Install required Python packages"""
+    """Installs required Python packages from requirements file.
+    
+    Processes requirements_sms.txt to install all dependencies needed
+    for SMS gateway operation including Flask, cryptography, and PostgreSQL drivers.
+    
+    Returns:
+        bool: True if all packages installed successfully.
+    """
     print("\n📦 Installing Python dependencies...")
     
     requirements_file = Path(__file__).parent / "requirements_sms.txt"
@@ -42,7 +57,14 @@ def install_requirements():
 
 
 def check_database_connection():
-    """Check database connection and schema"""
+    """Validates database connectivity and message queue schema presence.
+    
+    Tests PostgreSQL connection using configured credentials and verifies
+    that required message queue tables exist for SMS integration.
+    
+    Returns:
+        bool: True if database connection and schema validation succeed.
+    """
     print("\n🗄️  Checking database connection...")
     
     try:
@@ -95,7 +117,14 @@ def check_database_connection():
 
 
 def setup_sms_queues():
-    """Setup SMS-specific message queues"""
+    """Creates SMS-specific message queues and healthcare data rules.
+    
+    Establishes health exchange, SMS routing queues with priority patterns,
+    and default healthcare data classification rules for automated processing.
+    
+    Returns:
+        bool: True if all SMS queues and rules created successfully.
+    """
     print("\n📨 Setting up SMS message queues...")
     
     try:
