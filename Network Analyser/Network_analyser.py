@@ -44,7 +44,6 @@ def read_data_from_cmd():
 
         if not m:
             raise ValueError("No WiFi data found.")
-
         return m
 
     except (subprocess.SubprocessError, ValueError, EnvironmentError) as e:
@@ -150,7 +149,6 @@ def plot_signal_strength_over_time():
 def all_Networks():
     try:
         system = platform.system().lower()
-
         if system == "windows":
             p = subprocess.Popen(
                 ["netsh", "wlan", "show", "networks", "mode=bssid"],
@@ -172,7 +170,6 @@ def all_Networks():
 
         out, err = p.communicate()
         out = out.decode('utf-8', errors='ignore').strip()
-
         if system == "windows":
             networks = re.findall(
                 r"SSID\s*\d+\s*:\s*(.*?)\s*\n.*?Signal\s*:\s*(\d+)", out, re.DOTALL)

@@ -21,7 +21,7 @@ TWILIO_CONFIG = {
         'https://api.twilio.com/2010-04-01/Accounts/'
         '{account_sid}/Messages.json'
     ),
-    'sender_id': '+1234567890',  # Your Twilio phone number
+    'sender_id': '+1234567890', 
     'webhook_auth_token': 'your_webhook_auth_token'
 }
 
@@ -59,8 +59,8 @@ WEBHOOK_SERVER = {
     'host': '0.0.0.0',
     'port': 5000,
     'debug': False,
-    'ssl_cert': None,  # Path to SSL certificate for HTTPS
-    'ssl_key': None    # Path to SSL private key for HTTPS
+    'ssl_cert': None,  
+    'ssl_key': None    
 }
 
 # Healthcare Facility Phone Number Mapping
