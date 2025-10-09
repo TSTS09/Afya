@@ -1,0 +1,33 @@
+# Healthcare Transmission System Requirements
+# ==========================================
+
+# Core dependencies
+asyncpg>=0.28.0          # PostgreSQL async driver
+aiohttp>=3.8.0          # HTTP client/server
+psutil>=5.9.0           # System monitoring
+
+# Development dependencies
+pytest>=7.0.0           # Testing framework
+pytest-asyncio>=0.21.0  # Async testing support
+black>=23.0.0           # Code formatting
+flake8>=6.0.0           # Linting
+mypy>=1.0.0             # Type checking
+
+# Optional dependencies for specific providers
+# Uncomment the ones you need:
+
+# For enhanced SMS features (optional)
+# twilio>=8.0.0         # Twilio SMS provider
+# requests>=2.28.0      # HTTP requests (for some SMS providers)
+
+# For enhanced OpenHIM features (optional)
+# pyjwt>=2.6.0          # JWT token handling
+# cryptography>=40.0.0  # Encryption support
+
+# For enhanced monitoring (optional)
+# prometheus-client>=0.16.0  # Metrics collection
+# structlog>=23.0.0          # Structured logging
+
+# Development tools (optional)
+# jupyter>=1.0.0        # For development notebooks
+# ipython>=8.0.0        # Enhanced Python shell
