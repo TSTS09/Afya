@@ -13,21 +13,21 @@ black>=23.0.0           # Code formatting
 flake8>=6.0.0           # Linting
 mypy>=1.0.0             # Type checking
 
-# Optional dependencies for specific providers
+# dependencies for specific providers
 # Uncomment the ones you need:
 
-# For enhanced SMS features (optional)
+# For enhanced SMS features 
 # twilio>=8.0.0         # Twilio SMS provider
 # requests>=2.28.0      # HTTP requests (for some SMS providers)
 
-# For enhanced OpenHIM features (optional)
+# For enhanced OpenHIM features 
 # pyjwt>=2.6.0          # JWT token handling
 # cryptography>=40.0.0  # Encryption support
 
-# For enhanced monitoring (optional)
+# For enhanced monitoring 
 # prometheus-client>=0.16.0  # Metrics collection
 # structlog>=23.0.0          # Structured logging
 
-# Development tools (optional)
+# Development tools 
 # jupyter>=1.0.0        # For development notebooks
 # ipython>=8.0.0        # Enhanced Python shell
